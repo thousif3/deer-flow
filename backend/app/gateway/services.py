@@ -116,6 +116,7 @@ def build_run_config(
     metadata: dict[str, Any] | None,
     *,
     assistant_id: str | None = None,
+    user_id: str | None = None,
 ) -> dict[str, Any]:
     """Build a RunnableConfig dict for the agent.
 
@@ -128,6 +129,9 @@ def build_run_config(
     This mirrors the channel manager's ``_resolve_run_params`` logic so that
     the LangGraph Platform-compatible HTTP API and the IM channel path behave
     identically.
+
+    If *user_id* is provided, it is injected into the config metadata for
+    multi-tenant isolation.
     """
     config: dict[str, Any] = {"recursion_limit": 100}
     if request_config:
@@ -161,6 +165,11 @@ def build_run_config(
             if not normalized or not re.fullmatch(r"[a-z0-9-]+", normalized):
                 raise ValueError(f"Invalid assistant_id {assistant_id!r}: must contain only letters, digits, and hyphens after normalization.")
             config["configurable"]["agent_name"] = normalized
+
+    # Multi-tenant isolation: inject user_id into metadata
+    if user_id:
+        config.setdefault("metadata", {})["user_id"] = user_id
+
     if metadata:
         config.setdefault("metadata", {}).update(metadata)
     return config
@@ -260,6 +269,12 @@ async def start_run(
 
     disconnect = DisconnectMode.cancel if body.on_disconnect == "cancel" else DisconnectMode.continue_
 
+    # Get optional user for multi-tenant isolation
+    from app.gateway.deps import get_optional_user_from_request
+
+    user = await get_optional_user_from_request(request)
+    user_id = str(user.id) if user else None
+
     try:
         record = await run_mgr.create_or_reject(
             thread_id,
@@ -282,7 +297,13 @@ async def start_run(
 
     agent_factory = resolve_agent_factory(body.assistant_id)
     graph_input = normalize_input(body.input)
-    config = build_run_config(thread_id, body.config, body.metadata, assistant_id=body.assistant_id)
+    config = build_run_config(
+        thread_id,
+        body.config,
+        body.metadata,
+        assistant_id=body.assistant_id,
+        user_id=user_id,
+    )
 
     # Merge DeerFlow-specific context overrides into configurable.
     # The ``context`` field is a custom extension for the langgraph-compat layer
