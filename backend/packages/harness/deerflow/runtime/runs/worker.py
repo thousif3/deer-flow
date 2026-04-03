@@ -123,7 +123,8 @@ async def run_agent(
         runtime = Runtime(context={"thread_id": thread_id}, store=store)
         config.setdefault("configurable", {})["__pregel_runtime"] = runtime
 
-        # Inject RunJournal as a callback
+        # Inject RunJournal as a LangChain callback handler.
+        # on_llm_end captures token usage; on_chain_start/end captures lifecycle.
         if journal is not None:
             config.setdefault("callbacks", []).append(journal)
 
@@ -241,12 +242,24 @@ async def run_agent(
         )
 
     finally:
-        # Flush any buffered journal events
+        # Flush any buffered journal events and persist completion data
         if journal is not None:
             try:
                 await journal.flush()
             except Exception:
                 logger.warning("Failed to flush journal for run %s", run_id, exc_info=True)
+
+            # Persist token usage + convenience fields to RunStore
+            if run_manager._store is not None:
+                try:
+                    completion = journal.get_completion_data()
+                    await run_manager._store.update_run_completion(
+                        run_id,
+                        status=record.status.value,
+                        **completion,
+                    )
+                except Exception:
+                    logger.warning("Failed to persist run completion for %s", run_id, exc_info=True)
 
         await bridge.publish_end(run_id)
         asyncio.create_task(bridge.cleanup(run_id, delay=60))
