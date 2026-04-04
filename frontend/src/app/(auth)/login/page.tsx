@@ -95,15 +95,8 @@ export default function LoginPage() {
         return;
       }
 
-      if (isLogin) {
-        // Login successful — redirect to next or workspace
-        router.push(redirectPath);
-      } else {
-        // Registration successful, switch to login mode
-        setIsLogin(true);
-        setError("");
-        alert("Registration successful! Please login.");
-      }
+      // Both login and register set a cookie — redirect to workspace
+      router.push(redirectPath);
     } catch (_err) {
       setError("Network error. Please try again.");
     } finally {
