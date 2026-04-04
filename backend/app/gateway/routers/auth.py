@@ -1,6 +1,7 @@
 """Authentication endpoints."""
 
 import asyncio
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,10 +15,42 @@ from app.gateway.auth.config import get_auth_config
 from app.gateway.auth.errors import AuthErrorCode, AuthErrorResponse
 from app.gateway.deps import get_current_user_from_request, get_local_provider
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 _register_lock = asyncio.Lock()
 _setup_complete = False
+
+
+async def _migrate_orphaned_threads(admin_user_id: str, request: Request) -> None:
+    """Migrate threads without user_id to the first admin (fire-and-forget).
+
+    Called once when the first admin registers, so historical threads
+    created before auth are not hidden by multi-tenant isolation.
+    """
+    from app.gateway.deps import get_store
+    from app.gateway.routers.threads import THREADS_NS, _store_put
+
+    store = get_store(request)
+    if store is None:
+        return
+
+    try:
+        items = await store.asearch(THREADS_NS, limit=10_000)
+        migrated = 0
+        for item in items:
+            record = item.value
+            metadata = record.get("metadata", {})
+            if not metadata.get("user_id"):
+                metadata["user_id"] = admin_user_id
+                record["metadata"] = metadata
+                await _store_put(store, record)
+                migrated += 1
+        if migrated:
+            logger.info("Migrated %d orphaned threads to admin %s", migrated, admin_user_id)
+    except Exception:
+        logger.warning("Failed to migrate orphaned threads (non-fatal)", exc_info=True)
 
 
 # ── Request/Response Models ──────────────────────────────────────────────
@@ -130,6 +163,12 @@ async def register(request: Request, response: Response, body: RegisterRequest):
     from app.gateway.authz import mark_auth_enforced
 
     mark_auth_enforced()
+
+    # Migrate orphaned threads (created before auth) to the first admin
+    if role == "admin":
+        import asyncio
+
+        asyncio.create_task(_migrate_orphaned_threads(str(user.id), request))
 
     token = create_access_token(str(user.id))
     _set_session_cookie(response, token, request)
