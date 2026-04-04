@@ -41,24 +41,59 @@ async def _ensure_admin_user(app: FastAPI) -> None:
     """Auto-create the admin user on first boot if no users exist.
 
     Prints the generated password to stdout so the operator can log in.
-    On subsequent boots this is a no-op.
+    On subsequent boots, warns if any user still needs setup.
     """
     import secrets
 
     from app.gateway.deps import get_local_provider
 
     provider = get_local_provider()
-    if await provider.count_users() > 0:
+    user_count = await provider.count_users()
+
+    if user_count == 0:
+        password = secrets.token_urlsafe(16)
+        admin = await provider.create_user(email="admin@deerflow.local", password=password, system_role="admin")
+
+        # Set needs_setup flag
+        admin.needs_setup = True
+        await provider.update_user(admin)
+
+        # Migrate orphaned threads (no user_id) to this admin
+        store = getattr(app.state, "store", None)
+        if store is not None:
+            await _migrate_orphaned_threads(store, str(admin.id))
+
+        logger.info("=" * 60)
+        logger.info("  Admin account created on first boot")
+        logger.info("  Email:    %s", admin.email)
+        logger.info("  Password: %s", password)
+        logger.info("  Change it after login: Settings -> Account")
+        logger.info("=" * 60)
         return
 
-    password = secrets.token_urlsafe(16)
-    admin = await provider.create_user(email="admin@localhost", password=password, system_role="admin")
-    logger.info("=" * 60)
-    logger.info("  Admin account created on first boot")
-    logger.info("  Email:    %s", admin.email)
-    logger.info("  Password: %s", password)
-    logger.info("  Change it after login: Settings → Account")
-    logger.info("=" * 60)
+    # Check for users that still need setup
+    admin = await provider.get_user_by_email("admin@deerflow.local")
+    if admin and admin.needs_setup:
+        logger.warning("Admin account still needs setup. Log in or use: python -m app.gateway.auth.reset_admin")
+
+
+async def _migrate_orphaned_threads(store, admin_user_id: str) -> None:
+    """Migrate threads with no user_id to the given admin."""
+    try:
+        migrated = 0
+        results = await store.asearch(("threads",), limit=1000)
+        for item in results:
+            metadata = item.value.get("metadata", {}) if hasattr(item, "value") else {}
+            if not metadata.get("user_id"):
+                metadata["user_id"] = admin_user_id
+                if hasattr(item, "value"):
+                    item.value["metadata"] = metadata
+                    await store.aput(("threads",), item.key, item.value)
+                    migrated += 1
+        if migrated:
+            logger.info("Migrated %d orphaned thread(s) to admin", migrated)
+    except Exception:
+        logger.exception("Thread migration failed (non-fatal)")
 
 
 @asynccontextmanager

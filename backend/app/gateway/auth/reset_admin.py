@@ -33,11 +33,13 @@ def main() -> None:
 
     new_password = secrets.token_urlsafe(16)
     user.password_hash = hash_password(new_password)
+    user.token_version += 1
+    user.needs_setup = True
     asyncio.run(repo.update_user(user))
 
     print(f"Password reset for: {user.email}")
     print(f"New password: {new_password}")
-    print("Change it after login.")
+    print("Next login will require setup (new email + password).")
 
 
 async def _find_admin(repo: SQLiteUserRepository, email: str | None):

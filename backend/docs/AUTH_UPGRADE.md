@@ -30,7 +30,7 @@ make dev
 ```
 ============================================================
   Admin account created on first boot
-  Email:    admin@localhost
+  Email:    admin@deerflow.local
   Password: aB3xK9mN_pQ7rT2w
   Change it after login: Settings → Account
 ============================================================
