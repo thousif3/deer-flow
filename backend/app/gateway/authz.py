@@ -116,35 +116,6 @@ _ALL_PERMISSIONS: list[str] = [
     Permissions.RUNS_CANCEL,
 ]
 
-# Auth enforcement: disabled until at least one user registers.
-# Once a user exists, auth is enforced for all requests.
-_auth_enforced: bool = False
-
-
-def is_auth_enforced() -> bool:
-    """Return True if auth should be enforced (at least one user has registered)."""
-    return _auth_enforced
-
-
-def mark_auth_enforced() -> None:
-    """Mark auth as enforced (called after first user registration)."""
-    global _auth_enforced
-    _auth_enforced = True
-
-
-async def _check_auth_enforced() -> bool:
-    """Check and cache whether auth is enforced by counting users."""
-    global _auth_enforced
-    if _auth_enforced:
-        return True
-    from app.gateway.deps import get_local_provider
-
-    count = await get_local_provider().count_users()
-    if count > 0:
-        _auth_enforced = True
-    return _auth_enforced
-
-
 async def _authenticate(request: Request) -> AuthContext:
     """Authenticate request and return AuthContext.
 
@@ -243,10 +214,6 @@ def require_permission(
             request = kwargs.get("request")
             if request is None:
                 raise ValueError("require_permission decorator requires 'request' parameter")
-
-            # Skip auth enforcement if no users have registered yet
-            if not await _check_auth_enforced():
-                return await func(*args, **kwargs)
 
             auth: AuthContext = getattr(request.state, "auth", None)
             if auth is None:

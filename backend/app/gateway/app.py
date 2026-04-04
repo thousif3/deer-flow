@@ -37,6 +37,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def _ensure_admin_user(app: FastAPI) -> None:
+    """Auto-create the admin user on first boot if no users exist.
+
+    Prints the generated password to stdout so the operator can log in.
+    On subsequent boots this is a no-op.
+    """
+    import secrets
+
+    from app.gateway.deps import get_local_provider
+
+    provider = get_local_provider()
+    if await provider.count_users() > 0:
+        return
+
+    password = secrets.token_urlsafe(16)
+    admin = await provider.create_user(email="admin@localhost", password=password, system_role="admin")
+    logger.info("=" * 60)
+    logger.info("  Admin account created on first boot")
+    logger.info("  Email:    %s", admin.email)
+    logger.info("  Password: %s", password)
+    logger.info("  Change it after login: Settings → Account")
+    logger.info("=" * 60)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler."""
@@ -51,6 +75,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         raise RuntimeError(error_msg) from e
     config = get_gateway_config()
     logger.info(f"Starting API Gateway on {config.host}:{config.port}")
+
+    # Ensure admin user exists (auto-create on first boot)
+    await _ensure_admin_user(app)
 
     # Initialize LangGraph runtime components (StreamBridge, RunManager, checkpointer, store)
     async with langgraph_runtime(app):

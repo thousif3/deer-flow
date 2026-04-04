@@ -1,6 +1,5 @@
 """Authentication endpoints."""
 
-import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -18,39 +17,6 @@ from app.gateway.deps import get_current_user_from_request, get_local_provider
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
-
-_register_lock = asyncio.Lock()
-_setup_complete = False
-
-
-async def _migrate_orphaned_threads(admin_user_id: str, request: Request) -> None:
-    """Migrate threads without user_id to the first admin (fire-and-forget).
-
-    Called once when the first admin registers, so historical threads
-    created before auth are not hidden by multi-tenant isolation.
-    """
-    from app.gateway.deps import get_store
-    from app.gateway.routers.threads import THREADS_NS, _store_put
-
-    store = get_store(request)
-    if store is None:
-        return
-
-    try:
-        items = await store.asearch(THREADS_NS, limit=10_000)
-        migrated = 0
-        for item in items:
-            record = item.value
-            metadata = record.get("metadata", {})
-            if not metadata.get("user_id"):
-                metadata["user_id"] = admin_user_id
-                record["metadata"] = metadata
-                await _store_put(store, record)
-                migrated += 1
-        if migrated:
-            logger.info("Migrated %d orphaned threads to admin %s", migrated, admin_user_id)
-    except Exception:
-        logger.warning("Failed to migrate orphaned threads (non-fatal)", exc_info=True)
 
 
 # ── Request/Response Models ──────────────────────────────────────────────
@@ -134,41 +100,18 @@ async def login_local(
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(request: Request, response: Response, body: RegisterRequest):
-    """Register a new local user account.
+    """Register a new user account (always 'user' role).
 
-    First registered user is automatically assigned the admin role.
-    All registrations auto-login by setting the session cookie.
+    Admin is auto-created on first boot. This endpoint creates regular users.
+    Auto-login by setting the session cookie.
     """
-    global _setup_complete
-    provider = get_local_provider()
-
-    async with _register_lock:
-        if _setup_complete:
-            role = "user"
-        else:
-            user_count = await provider.count_users()
-            role = "admin" if user_count == 0 else "user"
-
-        try:
-            user = await provider.create_user(email=body.email, password=body.password, system_role=role)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
-            )
-
-        _setup_complete = True
-
-    # Once a user exists, enforce auth globally
-    from app.gateway.authz import mark_auth_enforced
-
-    mark_auth_enforced()
-
-    # Migrate orphaned threads (created before auth) to the first admin
-    if role == "admin":
-        import asyncio
-
-        asyncio.create_task(_migrate_orphaned_threads(str(user.id), request))
+    try:
+        user = await get_local_provider().create_user(email=body.email, password=body.password, system_role="user")
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
+        )
 
     token = create_access_token(str(user.id))
     _set_session_cookie(response, token, request)
@@ -212,13 +155,8 @@ async def get_me(request: Request):
 
 @router.get("/setup-status")
 async def setup_status():
-    """Check if initial admin setup is needed (no users registered yet)."""
-    global _setup_complete
-    if _setup_complete:
-        return {"needs_setup": False}
+    """Check if admin account exists. Always False after first boot."""
     user_count = await get_local_provider().count_users()
-    if user_count > 0:
-        _setup_complete = True
     return {"needs_setup": user_count == 0}
 
 

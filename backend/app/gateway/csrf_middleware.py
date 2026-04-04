@@ -62,12 +62,9 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        from app.gateway.authz import is_auth_enforced
-
         _is_auth = is_auth_endpoint(request)
 
-        # Skip CSRF validation entirely when auth is not enforced (no users registered)
-        if should_check_csrf(request) and not _is_auth and is_auth_enforced():
+        if should_check_csrf(request) and not _is_auth:
             cookie_token = request.cookies.get(CSRF_COOKIE_NAME)
             header_token = request.headers.get(CSRF_HEADER_NAME)
 

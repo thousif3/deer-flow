@@ -21,13 +21,6 @@ export default async function WorkspaceLayout({
           <WorkspaceContent>{children}</WorkspaceContent>
         </AuthProvider>
       );
-    case "no_auth_required":
-      // No users registered — auth not enforced, render without auth context
-      return (
-        <AuthProvider initialUser={null}>
-          <WorkspaceContent>{children}</WorkspaceContent>
-        </AuthProvider>
-      );
     case "unauthenticated":
       redirect("/login");
     case "gateway_unavailable":
