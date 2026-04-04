@@ -72,6 +72,49 @@ def _set_session_cookie(response: Response, token: str, request: Request) -> Non
     )
 
 
+# ── Rate Limiting ────────────────────────────────────────────────────────
+
+import time
+
+_MAX_LOGIN_ATTEMPTS = 5
+_LOCKOUT_SECONDS = 300  # 5 minutes
+
+# ip → (fail_count, lock_until_timestamp)
+_login_attempts: dict[str, tuple[int, float]] = {}
+
+
+def _check_rate_limit(ip: str) -> None:
+    """Raise 429 if the IP is currently locked out."""
+    record = _login_attempts.get(ip)
+    if record is None:
+        return
+    fail_count, lock_until = record
+    if fail_count >= _MAX_LOGIN_ATTEMPTS and time.time() < lock_until:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many login attempts. Try again later.",
+        )
+    # Lockout expired — clear
+    if fail_count >= _MAX_LOGIN_ATTEMPTS and time.time() >= lock_until:
+        del _login_attempts[ip]
+
+
+def _record_login_failure(ip: str) -> None:
+    """Record a failed login attempt for the given IP."""
+    record = _login_attempts.get(ip)
+    if record is None:
+        _login_attempts[ip] = (1, 0.0)
+    else:
+        new_count = record[0] + 1
+        lock_until = time.time() + _LOCKOUT_SECONDS if new_count >= _MAX_LOGIN_ATTEMPTS else 0.0
+        _login_attempts[ip] = (new_count, lock_until)
+
+
+def _record_login_success(ip: str) -> None:
+    """Clear failure counter for the given IP on successful login."""
+    _login_attempts.pop(ip, None)
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────
 
 
@@ -81,19 +124,20 @@ async def login_local(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
-    """Local email/password login.
+    """Local email/password login."""
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip)
 
-    Authenticates user with username (email) and password,
-    sets JWT as HttpOnly cookie only (not in response body per RFC-001).
-    """
     user = await get_local_provider().authenticate({"email": form_data.username, "password": form_data.password})
 
     if user is None:
+        _record_login_failure(client_ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Incorrect email or password").model_dump(),
         )
 
+    _record_login_success(client_ip)
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request)
 

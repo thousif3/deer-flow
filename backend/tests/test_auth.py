@@ -395,6 +395,42 @@ def test_login_response_includes_needs_setup():
     assert resp2.needs_setup is False
 
 
+# ── Rate Limiting ──────────────────────────────────────────────────────────
+
+
+def test_rate_limiter_allows_under_limit():
+    """Requests under the limit are allowed."""
+    from app.gateway.routers.auth import _check_rate_limit, _login_attempts
+
+    _login_attempts.clear()
+    _check_rate_limit("192.168.1.1")  # Should not raise
+
+
+def test_rate_limiter_blocks_after_max_failures():
+    """IP is blocked after 5 consecutive failures."""
+    from app.gateway.routers.auth import _check_rate_limit, _login_attempts, _record_login_failure
+
+    _login_attempts.clear()
+    ip = "10.0.0.1"
+    for _ in range(5):
+        _record_login_failure(ip)
+    with pytest.raises(HTTPException) as exc_info:
+        _check_rate_limit(ip)
+    assert exc_info.value.status_code == 429
+
+
+def test_rate_limiter_resets_on_success():
+    """Successful login clears the failure counter."""
+    from app.gateway.routers.auth import _check_rate_limit, _login_attempts, _record_login_failure, _record_login_success
+
+    _login_attempts.clear()
+    ip = "10.0.0.2"
+    for _ in range(4):
+        _record_login_failure(ip)
+    _record_login_success(ip)
+    _check_rate_limit(ip)  # Should not raise
+
+
 # ── Weak JWT secret warning ──────────────────────────────────────────────────
 
 
