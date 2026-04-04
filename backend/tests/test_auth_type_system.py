@@ -181,11 +181,11 @@ def test_login_response_model_has_no_access_token():
 
 
 def test_login_response_model_fields():
-    """LoginResponse should only have expires_in."""
+    """LoginResponse has expires_in and needs_setup."""
     from app.gateway.routers.auth import LoginResponse
 
     fields = set(LoginResponse.model_fields.keys())
-    assert fields == {"expires_in"}
+    assert fields == {"expires_in", "needs_setup"}
 
 
 # ── AuthConfig in Route ──────────────────────────────────────────────
