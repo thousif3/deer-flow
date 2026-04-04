@@ -35,12 +35,12 @@ def _get_connection() -> sqlite3.Connection:
     db_path = _get_users_db_path()
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
 
 def _init_users_table(conn: sqlite3.Connection) -> None:
     """Initialize the users table if it doesn't exist."""
+    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
@@ -191,6 +191,6 @@ class SQLiteUserRepository(UserRepository):
             created_at=datetime.fromtimestamp(row["created_at"], tz=UTC),
             oauth_provider=row.get("oauth_provider"),
             oauth_id=row.get("oauth_id"),
-            needs_setup=bool(row.get("needs_setup", 0)),
-            token_version=int(row.get("token_version", 0)),
+            needs_setup=bool(row["needs_setup"]),
+            token_version=int(row["token_version"]),
         )

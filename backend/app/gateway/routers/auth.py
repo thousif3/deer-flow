@@ -1,6 +1,7 @@
 """Authentication endpoints."""
 
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -73,8 +74,7 @@ def _set_session_cookie(response: Response, token: str, request: Request) -> Non
 
 
 # ── Rate Limiting ────────────────────────────────────────────────────────
-
-import time
+# In-process dict — not shared across workers. Sufficient for single-worker deployments.
 
 _MAX_LOGIN_ATTEMPTS = 5
 _LOCKOUT_SECONDS = 300  # 5 minutes
@@ -89,13 +89,12 @@ def _check_rate_limit(ip: str) -> None:
     if record is None:
         return
     fail_count, lock_until = record
-    if fail_count >= _MAX_LOGIN_ATTEMPTS and time.time() < lock_until:
-        raise HTTPException(
-            status_code=429,
-            detail="Too many login attempts. Try again later.",
-        )
-    # Lockout expired — clear
-    if fail_count >= _MAX_LOGIN_ATTEMPTS and time.time() >= lock_until:
+    if fail_count >= _MAX_LOGIN_ATTEMPTS:
+        if time.time() < lock_until:
+            raise HTTPException(
+                status_code=429,
+                detail="Too many login attempts. Try again later.",
+            )
         del _login_attempts[ip]
 
 

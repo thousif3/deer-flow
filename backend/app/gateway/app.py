@@ -52,11 +52,7 @@ async def _ensure_admin_user(app: FastAPI) -> None:
 
     if user_count == 0:
         password = secrets.token_urlsafe(16)
-        admin = await provider.create_user(email="admin@deerflow.dev", password=password, system_role="admin")
-
-        # Set needs_setup flag
-        admin.needs_setup = True
-        await provider.update_user(admin)
+        admin = await provider.create_user(email="admin@deerflow.dev", password=password, system_role="admin", needs_setup=True)
 
         # Migrate orphaned threads (no user_id) to this admin
         store = getattr(app.state, "store", None)
@@ -83,13 +79,12 @@ async def _migrate_orphaned_threads(store, admin_user_id: str) -> None:
         migrated = 0
         results = await store.asearch(("threads",), limit=1000)
         for item in results:
-            metadata = item.value.get("metadata", {}) if hasattr(item, "value") else {}
+            metadata = item.value.get("metadata", {})
             if not metadata.get("user_id"):
                 metadata["user_id"] = admin_user_id
-                if hasattr(item, "value"):
-                    item.value["metadata"] = metadata
-                    await store.aput(("threads",), item.key, item.value)
-                    migrated += 1
+                item.value["metadata"] = metadata
+                await store.aput(("threads",), item.key, item.value)
+                migrated += 1
         if migrated:
             logger.info("Migrated %d orphaned thread(s) to admin", migrated)
     except Exception:
