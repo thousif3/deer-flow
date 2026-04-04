@@ -39,6 +39,9 @@ export async function getServerSideUser(): Promise<AuthResult> {
         console.error("[SSR auth] Malformed /auth/me response:", parsed.error);
         return { tag: "gateway_unavailable" };
       }
+      if (parsed.data.needs_setup) {
+        return { tag: "needs_setup", user: parsed.data };
+      }
       return { tag: "authenticated", user: parsed.data };
     }
     if (res.status === 401 || res.status === 403) {

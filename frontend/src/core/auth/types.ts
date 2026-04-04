@@ -6,6 +6,7 @@ export const userSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   system_role: z.enum(["admin", "user"]),
+  needs_setup: z.boolean().optional().default(false),
 });
 
 export type User = z.infer<typeof userSchema>;
@@ -14,6 +15,7 @@ export type User = z.infer<typeof userSchema>;
 
 export type AuthResult =
   | { tag: "authenticated"; user: User }
+  | { tag: "needs_setup"; user: User }
   | { tag: "unauthenticated" }
   | { tag: "gateway_unavailable" }
   | { tag: "config_error"; message: string };

@@ -38,3 +38,4 @@ class UserResponse(BaseModel):
     id: str
     email: str
     system_role: Literal["admin", "user"]
+    needs_setup: bool = False
