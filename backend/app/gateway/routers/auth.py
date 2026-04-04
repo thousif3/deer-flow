@@ -126,6 +126,11 @@ async def register(request: Request, response: Response, body: RegisterRequest):
 
         _setup_complete = True
 
+    # Once a user exists, enforce auth globally
+    from app.gateway.authz import mark_auth_enforced
+
+    mark_auth_enforced()
+
     token = create_access_token(str(user.id))
     _set_session_cookie(response, token, request)
 
