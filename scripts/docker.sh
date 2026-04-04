@@ -231,10 +231,9 @@ start() {
         fi
     fi
 
-    # Set nginx routing for gateway mode (envsubst in nginx container)
+    # Set frontend env for gateway mode (compose reads from shell env)
     if $gateway_mode; then
-        export LANGGRAPH_UPSTREAM=gateway:8001
-        export LANGGRAPH_REWRITE=/api/
+        export NEXT_PUBLIC_LANGGRAPH_BASE_URL=/api/langgraph-compat
     fi
 
     echo "Building and starting containers..."
@@ -247,8 +246,8 @@ start() {
     echo "  🌐 Application: http://localhost:2026"
     echo "  📡 API Gateway: http://localhost:2026/api/*"
     if $gateway_mode; then
-        echo "  🤖 Runtime:     Gateway embedded"
-        echo "  API:            /api/langgraph/* → Gateway (compat)"
+        echo "  🤖 Runtime:     Gateway embedded (experimental)"
+        echo "  API:            /api/langgraph-compat/* → Gateway"
     else
         echo "  🤖 LangGraph:   http://localhost:2026/api/langgraph/*"
     fi
