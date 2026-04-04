@@ -18,6 +18,7 @@ export default async function AuthLayout({
   switch (result.tag) {
     case "authenticated":
       redirect("/workspace");
+    case "no_auth_required":
     case "unauthenticated":
       return <AuthProvider initialUser={null}>{children}</AuthProvider>;
     case "gateway_unavailable":

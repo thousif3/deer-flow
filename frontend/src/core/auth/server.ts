@@ -12,13 +12,32 @@ const SSR_AUTH_TIMEOUT_MS = 5_000;
 export async function getServerSideUser(): Promise<AuthResult> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("access_token");
-  if (!sessionCookie) return { tag: "unauthenticated" };
 
   let internalGatewayUrl: string;
   try {
     internalGatewayUrl = getGatewayConfig().internalGatewayUrl;
   } catch (err) {
     return { tag: "config_error", message: String(err) };
+  }
+
+  if (!sessionCookie) {
+    // No session cookie — check if auth is even required (any users registered?)
+    try {
+      const statusRes = await fetch(
+        `${internalGatewayUrl}/api/v1/auth/setup-status`,
+        { cache: "no-store" },
+      );
+      if (statusRes.ok) {
+        const status = (await statusRes.json()) as { needs_setup: boolean };
+        if (status.needs_setup) {
+          // No users registered — auth not enforced, let the request through
+          return { tag: "no_auth_required" };
+        }
+      }
+    } catch {
+      // Gateway unreachable — fall through to unauthenticated
+    }
+    return { tag: "unauthenticated" };
   }
 
   const controller = new AbortController();
