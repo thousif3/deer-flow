@@ -362,6 +362,39 @@ def test_token_version_mismatch_rejects():
         assert "revoked" in str(exc_info.value.detail).lower()
 
 
+# ── change-password extension ──────────────────────────────────────────────
+
+
+def test_change_password_request_accepts_new_email():
+    """ChangePasswordRequest model accepts optional new_email."""
+    from app.gateway.routers.auth import ChangePasswordRequest
+
+    req = ChangePasswordRequest(
+        current_password="old",
+        new_password="newpassword",
+        new_email="new@example.com",
+    )
+    assert req.new_email == "new@example.com"
+
+
+def test_change_password_request_new_email_optional():
+    """ChangePasswordRequest model works without new_email."""
+    from app.gateway.routers.auth import ChangePasswordRequest
+
+    req = ChangePasswordRequest(current_password="old", new_password="newpassword")
+    assert req.new_email is None
+
+
+def test_login_response_includes_needs_setup():
+    """LoginResponse includes needs_setup field."""
+    from app.gateway.routers.auth import LoginResponse
+
+    resp = LoginResponse(expires_in=3600, needs_setup=True)
+    assert resp.needs_setup is True
+    resp2 = LoginResponse(expires_in=3600)
+    assert resp2.needs_setup is False
+
+
 # ── Weak JWT secret warning ──────────────────────────────────────────────────
 
 

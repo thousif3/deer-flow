@@ -26,6 +26,7 @@ class LoginResponse(BaseModel):
     """Response model for login — token only lives in HttpOnly cookie."""
 
     expires_in: int  # seconds
+    needs_setup: bool = False
 
 
 class RegisterRequest(BaseModel):
@@ -36,10 +37,11 @@ class RegisterRequest(BaseModel):
 
 
 class ChangePasswordRequest(BaseModel):
-    """Request model for password change."""
+    """Request model for password change (also handles setup flow)."""
 
     current_password: str
     new_password: str = Field(..., min_length=8)
+    new_email: EmailStr | None = None
 
 
 class MessageResponse(BaseModel):
@@ -95,7 +97,10 @@ async def login_local(
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request)
 
-    return LoginResponse(expires_in=get_auth_config().token_expiry_days * 24 * 3600)
+    return LoginResponse(
+        expires_in=get_auth_config().token_expiry_days * 24 * 3600,
+        needs_setup=user.needs_setup,
+    )
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -127,8 +132,15 @@ async def logout(request: Request, response: Response):
 
 
 @router.post("/change-password", response_model=MessageResponse)
-async def change_password(request: Request, body: ChangePasswordRequest):
-    """Change password for the currently authenticated user."""
+async def change_password(request: Request, response: Response, body: ChangePasswordRequest):
+    """Change password for the currently authenticated user.
+
+    Also handles the first-boot setup flow:
+    - If new_email is provided, updates email (checks uniqueness)
+    - If user.needs_setup is True and new_email is given, clears needs_setup
+    - Always increments token_version to invalidate old sessions
+    - Re-issues session cookie with new token_version
+    """
     from app.gateway.auth.password import hash_password_async, verify_password_async
 
     user = await get_current_user_from_request(request)
@@ -139,9 +151,27 @@ async def change_password(request: Request, body: ChangePasswordRequest):
     if not await verify_password_async(body.current_password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Current password is incorrect").model_dump())
 
-    new_hash = await hash_password_async(body.new_password)
-    user.password_hash = new_hash
+    # Update email if provided
+    if body.new_email is not None:
+        provider = get_local_provider()
+        existing = await provider.get_user_by_email(body.new_email)
+        if existing and str(existing.id) != str(user.id):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already in use").model_dump())
+        user.email = body.new_email
+
+    # Update password + bump version
+    user.password_hash = await hash_password_async(body.new_password)
+    user.token_version += 1
+
+    # Clear setup flag if this is the setup flow
+    if user.needs_setup and body.new_email is not None:
+        user.needs_setup = False
+
     await get_local_provider().update_user(user)
+
+    # Re-issue cookie with new token_version
+    token = create_access_token(str(user.id), token_version=user.token_version)
+    _set_session_cookie(response, token, request)
 
     return MessageResponse(message="Password changed successfully")
 
