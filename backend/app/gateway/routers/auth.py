@@ -92,7 +92,7 @@ async def login_local(
             detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Incorrect email or password").model_dump(),
         )
 
-    token = create_access_token(str(user.id))
+    token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request)
 
     return LoginResponse(expires_in=get_auth_config().token_expiry_days * 24 * 3600)
@@ -113,7 +113,7 @@ async def register(request: Request, response: Response, body: RegisterRequest):
             detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
         )
 
-    token = create_access_token(str(user.id))
+    token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request)
 
     return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role)

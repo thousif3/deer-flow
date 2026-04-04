@@ -1,7 +1,7 @@
 """Tests for authentication module: JWT, password hashing, AuthContext, and authz decorators."""
 
 from datetime import timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -303,6 +303,63 @@ def test_sqlite_round_trip_new_fields():
         finally:
             sqlite_mod._resolved_db_path = old_path
             sqlite_mod._table_initialized = old_init
+
+
+# ── Token Versioning ───────────────────────────────────────────────────────
+
+
+def test_jwt_encodes_ver():
+    """JWT payload includes ver field."""
+    import os
+
+    from app.gateway.auth.errors import TokenError
+
+    os.environ["AUTH_JWT_SECRET"] = "test-secret-key-for-jwt-testing-minimum-32-chars"
+    token = create_access_token(str(uuid4()), token_version=3)
+    payload = decode_token(token)
+    assert not isinstance(payload, TokenError)
+    assert payload.ver == 3
+
+
+def test_jwt_default_ver_zero():
+    """JWT ver defaults to 0."""
+    import os
+
+    from app.gateway.auth.errors import TokenError
+
+    os.environ["AUTH_JWT_SECRET"] = "test-secret-key-for-jwt-testing-minimum-32-chars"
+    token = create_access_token(str(uuid4()))
+    payload = decode_token(token)
+    assert not isinstance(payload, TokenError)
+    assert payload.ver == 0
+
+
+def test_token_version_mismatch_rejects():
+    """Token with stale ver is rejected by get_current_user_from_request."""
+    import asyncio
+    import os
+
+    os.environ["AUTH_JWT_SECRET"] = "test-secret-key-for-jwt-testing-minimum-32-chars"
+
+    user_id = str(uuid4())
+    token = create_access_token(user_id, token_version=0)
+
+    mock_user = User(id=user_id, email="test@example.com", password_hash="hash", token_version=1)
+
+    mock_request = MagicMock()
+    mock_request.cookies = {"access_token": token}
+
+    with patch("app.gateway.deps.get_local_provider") as mock_provider_fn:
+        mock_provider = MagicMock()
+        mock_provider.get_user = AsyncMock(return_value=mock_user)
+        mock_provider_fn.return_value = mock_provider
+
+        from app.gateway.deps import get_current_user_from_request
+
+        with pytest.raises(HTTPException) as exc_info:
+            asyncio.run(get_current_user_from_request(mock_request))
+        assert exc_info.value.status_code == 401
+        assert "revoked" in str(exc_info.value.detail).lower()
 
 
 # ── Weak JWT secret warning ──────────────────────────────────────────────────
