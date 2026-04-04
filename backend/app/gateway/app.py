@@ -52,7 +52,7 @@ async def _ensure_admin_user(app: FastAPI) -> None:
 
     if user_count == 0:
         password = secrets.token_urlsafe(16)
-        admin = await provider.create_user(email="admin@deerflow.local", password=password, system_role="admin")
+        admin = await provider.create_user(email="admin@deerflow.dev", password=password, system_role="admin")
 
         # Set needs_setup flag
         admin.needs_setup = True
@@ -72,7 +72,7 @@ async def _ensure_admin_user(app: FastAPI) -> None:
         return
 
     # Check for users that still need setup
-    admin = await provider.get_user_by_email("admin@deerflow.local")
+    admin = await provider.get_user_by_email("admin@deerflow.dev")
     if admin and admin.needs_setup:
         logger.warning("Admin account still needs setup. Log in or use: python -m app.gateway.auth.reset_admin")
 
