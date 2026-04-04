@@ -57,13 +57,6 @@ class Permissions:
     RUNS_CANCEL = "runs:cancel"
 
 
-# Resource-action mapping for owner_check
-RESOURCE_ACTIONS: dict[str, set[str]] = {
-    "threads": {"read", "write", "delete"},
-    "runs": {"create", "read", "cancel"},
-}
-
-
 class AuthContext:
     """Authentication context for the current request.
 
@@ -114,43 +107,30 @@ def get_auth_context(request: Request) -> AuthContext | None:
     return getattr(request.state, "auth", None)
 
 
+_ALL_PERMISSIONS: list[str] = [
+    Permissions.THREADS_READ,
+    Permissions.THREADS_WRITE,
+    Permissions.THREADS_DELETE,
+    Permissions.RUNS_CREATE,
+    Permissions.RUNS_READ,
+    Permissions.RUNS_CANCEL,
+]
+
+
 async def _authenticate(request: Request) -> AuthContext:
     """Authenticate request and return AuthContext.
 
-    Reads access_token from cookie, validates JWT, and returns user info.
+    Delegates to deps.get_optional_user_from_request() for the JWT→User pipeline.
     Returns AuthContext with user=None for anonymous requests.
     """
-    from app.gateway.auth import decode_token
-    from app.gateway.auth.errors import TokenError
+    from app.gateway.deps import get_optional_user_from_request
 
-    access_token = request.cookies.get("access_token")
-    if not access_token:
-        return AuthContext(user=None, permissions=[])
-
-    payload = decode_token(access_token)
-    if isinstance(payload, TokenError):
-        return AuthContext(user=None, permissions=[])
-
-    # Use cached provider singleton to avoid repeated instantiation
-    from app.gateway.deps import _get_local_provider
-
-    provider = _get_local_provider()
-    user = await provider.get_user(payload.sub)
+    user = await get_optional_user_from_request(request)
     if user is None:
         return AuthContext(user=None, permissions=[])
 
-    # For now, all authenticated users get basic permissions
     # In future, permissions could be stored in user record
-    permissions = [
-        Permissions.THREADS_READ,
-        Permissions.THREADS_WRITE,
-        Permissions.THREADS_DELETE,
-        Permissions.RUNS_CREATE,
-        Permissions.RUNS_READ,
-        Permissions.RUNS_CANCEL,
-    ]
-
-    return AuthContext(user=user, permissions=permissions)
+    return AuthContext(user=user, permissions=_ALL_PERMISSIONS)
 
 
 def require_auth[**P, T](func: Callable[P, T]) -> Callable[P, T]:
@@ -281,36 +261,3 @@ def require_permission(
         return wrapper
 
     return decorator
-
-
-# Convenience decorators for common permission patterns
-def require_thread_owner[**P, T](func: Callable[P, T]) -> Callable[P, T]:
-    """Shortcut for @require_permission("threads", "write", owner_check=True).
-
-    Use for endpoints that modify thread state (PATCH, DELETE).
-    """
-
-    @functools.wraps(func)
-    async def wrapper(*args: Any, **kwargs: Any) -> Any:
-        return await func(*args, **kwargs)
-
-    # Apply decorators in correct order (bottom to top = inner to outer)
-    # First auth (sets context), then permission check
-    wrapper = require_permission("threads", "write", owner_check=True)(wrapper)
-    wrapper = require_auth(wrapper)
-    return wrapper
-
-
-def require_thread_read[**P, T](func: Callable[P, T]) -> Callable[P, T]:
-    """Shortcut for @require_permission("threads", "read", owner_check=True).
-
-    Use for GET thread endpoints.
-    """
-
-    @functools.wraps(func)
-    async def wrapper(*args: Any, **kwargs: Any) -> Any:
-        return await func(*args, **kwargs)
-
-    wrapper = require_permission("threads", "read", owner_check=True)(wrapper)
-    wrapper = require_auth(wrapper)
-    return wrapper

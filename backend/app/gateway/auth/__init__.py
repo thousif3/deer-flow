@@ -3,16 +3,16 @@
 This module provides:
 - JWT-based authentication
 - Provider Factory pattern for extensible auth methods
-- UserRepository interface for different storage backends (SQLite, PostgreSQL)
+- UserRepository interface for storage backends (SQLite)
 """
 
 from app.gateway.auth.config import AuthConfig, get_auth_config, set_auth_config
 from app.gateway.auth.errors import AuthErrorCode, AuthErrorResponse, TokenError
 from app.gateway.auth.jwt import TokenPayload, create_access_token, decode_token
 from app.gateway.auth.local_provider import LocalAuthProvider
-from app.gateway.auth.models import User, UserCreate, UserInDB, UserResponse
+from app.gateway.auth.models import User, UserResponse
 from app.gateway.auth.password import hash_password, verify_password
-from app.gateway.auth.providers import AuthProvider, AuthResult, ProviderFactory
+from app.gateway.auth.providers import AuthProvider
 from app.gateway.auth.repositories.base import UserRepository
 
 __all__ = [
@@ -33,13 +33,9 @@ __all__ = [
     "verify_password",
     # Models
     "User",
-    "UserCreate",
-    "UserInDB",
     "UserResponse",
     # Providers
     "AuthProvider",
-    "AuthResult",
-    "ProviderFactory",
     "LocalAuthProvider",
     # Repository
     "UserRepository",

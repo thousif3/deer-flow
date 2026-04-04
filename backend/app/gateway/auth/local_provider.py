@@ -13,7 +13,7 @@ class LocalAuthProvider(AuthProvider):
         """Initialize with a UserRepository.
 
         Args:
-            repository: UserRepository implementation (SQLite, PostgreSQL, etc.)
+            repository: UserRepository implementation (SQLite)
         """
         self._repo = repository
 
@@ -49,12 +49,13 @@ class LocalAuthProvider(AuthProvider):
         """Get user by ID."""
         return await self._repo.get_user_by_id(user_id)
 
-    async def create_user(self, email: str, password: str | None = None) -> User:
+    async def create_user(self, email: str, password: str | None = None, system_role: str = "user") -> User:
         """Create a new local user.
 
         Args:
             email: User email address
             password: Plain text password (will be hashed)
+            system_role: Role to assign ("admin" or "user")
 
         Returns:
             Created User instance
@@ -63,12 +64,21 @@ class LocalAuthProvider(AuthProvider):
         user = User(
             email=email,
             password_hash=password_hash,
+            system_role=system_role,
         )
         return await self._repo.create_user(user)
 
     async def get_user_by_oauth(self, provider: str, oauth_id: str) -> User | None:
         """Get user by OAuth provider and ID."""
         return await self._repo.get_user_by_oauth(provider, oauth_id)
+
+    async def count_users(self) -> int:
+        """Return total number of registered users."""
+        return await self._repo.count_users()
+
+    async def update_user(self, user: User) -> User:
+        """Update an existing user."""
+        return await self._repo.update_user(user)
 
     async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""

@@ -28,25 +28,6 @@ class User(BaseModel):
     oauth_id: str | None = Field(None, description="User ID from OAuth provider")
 
 
-class UserCreate(BaseModel):
-    """Request model for user registration."""
-
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-
-
-class UserInDB(BaseModel):
-    """Full user record as stored in SQLite."""
-
-    id: str
-    email: str
-    password_hash: str | None
-    system_role: str
-    created_at: float  # Unix timestamp for SQLite
-    oauth_provider: str | None
-    oauth_id: str | None
-
-
 class UserResponse(BaseModel):
     """Response model for user info endpoint."""
 

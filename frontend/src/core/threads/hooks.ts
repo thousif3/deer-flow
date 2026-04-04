@@ -493,10 +493,13 @@ export function useDeleteThread() {
     mutationFn: async ({ threadId }: { threadId: string }) => {
       await apiClient.threads.delete(threadId);
 
+      const { getCsrfHeaders } = await import("@/core/api/fetcher");
       const response = await fetch(
         `${getBackendBaseURL()}/api/threads/${encodeURIComponent(threadId)}`,
         {
           method: "DELETE",
+          headers: { ...getCsrfHeaders() },
+          credentials: "include",
         },
       );
 

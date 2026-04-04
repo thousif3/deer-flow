@@ -12,12 +12,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp
 
-# Cookie name for CSRF token
 CSRF_COOKIE_NAME = "csrf_token"
-# Header name for CSRF token
 CSRF_HEADER_NAME = "X-CSRF-Token"
-# Token length (64 bytes for security)
-CSRF_TOKEN_LENGTH = 64
+CSRF_TOKEN_LENGTH = 64  # bytes
 
 
 def generate_csrf_token() -> str:
@@ -65,8 +62,10 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        _is_auth = is_auth_endpoint(request)
+
         # For state-changing requests, validate CSRF token
-        if should_check_csrf(request) and not is_auth_endpoint(request):
+        if should_check_csrf(request) and not _is_auth:
             cookie_token = request.cookies.get(CSRF_COOKIE_NAME)
             header_token = request.headers.get(CSRF_HEADER_NAME)
 
@@ -82,12 +81,10 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     content={"detail": "CSRF token mismatch."},
                 )
 
-        # Process request
         response = await call_next(request)
 
         # For auth endpoints that set up session, also set CSRF cookie
-        # This ensures a token is available for subsequent requests
-        if is_auth_endpoint(request) and request.method == "POST":
+        if _is_auth and request.method == "POST":
             # Generate a new CSRF token for the session
             csrf_token = generate_csrf_token()
             is_https = request.headers.get("x-forwarded-proto", request.url.scheme) == "https"

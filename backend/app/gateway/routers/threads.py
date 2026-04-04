@@ -281,12 +281,10 @@ async def create_thread(body: ThreadCreateRequest, request: Request) -> ThreadRe
     thread_id = body.thread_id or str(uuid.uuid4())
     now = time.time()
 
-    # Get optional user for multi-tenant isolation
     from app.gateway.deps import get_optional_user_from_request
 
     user = await get_optional_user_from_request(request)
 
-    # Build thread metadata with user_id for isolation
     thread_metadata = dict(body.metadata)
     if user:
         thread_metadata["user_id"] = str(user.id)
@@ -371,7 +369,6 @@ async def search_threads(body: ThreadSearchRequest, request: Request) -> list[Th
     store = get_store(request)
     checkpointer = get_checkpointer(request)
 
-    # Get optional user for multi-tenant isolation
     from app.gateway.deps import get_optional_user_from_request
 
     user = await get_optional_user_from_request(request)

@@ -36,7 +36,9 @@ def test_auth_config_from_env():
             cfg._auth_config = old
 
 
-def test_auth_config_missing_secret_raises():
+def test_auth_config_missing_secret_generates_ephemeral(caplog):
+    import logging
+
     import app.gateway.auth.config as cfg
 
     old = cfg._auth_config
@@ -44,7 +46,9 @@ def test_auth_config_missing_secret_raises():
     try:
         with patch.dict(os.environ, {}, clear=True):
             os.environ.pop("AUTH_JWT_SECRET", None)
-            with pytest.raises(ValueError, match="AUTH_JWT_SECRET"):
-                cfg.get_auth_config()
+            with caplog.at_level(logging.WARNING):
+                config = cfg.get_auth_config()
+            assert config.jwt_secret
+            assert any("AUTH_JWT_SECRET" in msg for msg in caplog.messages)
     finally:
         cfg._auth_config = old

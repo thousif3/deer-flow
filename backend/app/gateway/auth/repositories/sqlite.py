@@ -12,20 +12,27 @@ from app.gateway.auth.config import get_auth_config
 from app.gateway.auth.models import User
 from app.gateway.auth.repositories.base import UserRepository
 
+_resolved_db_path: Path | None = None
+_table_initialized: bool = False
+
 
 def _get_users_db_path() -> Path:
-    """Get the users database path."""
+    """Get the users database path (resolved and cached once)."""
+    global _resolved_db_path
+    if _resolved_db_path is not None:
+        return _resolved_db_path
     config = get_auth_config()
     if config.users_db_path:
-        return Path(config.users_db_path)
-    # Default path: .deer-flow/users.db
-    return Path(".deer-flow/users.db")
+        _resolved_db_path = Path(config.users_db_path)
+    else:
+        _resolved_db_path = Path(".deer-flow/users.db")
+    _resolved_db_path.parent.mkdir(parents=True, exist_ok=True)
+    return _resolved_db_path
 
 
 def _get_connection() -> sqlite3.Connection:
     """Get a SQLite connection for the users database."""
     db_path = _get_users_db_path()
-    db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     return conn
@@ -60,9 +67,12 @@ def _init_users_table(conn: sqlite3.Connection) -> None:
 @contextmanager
 def _get_users_conn():
     """Context manager for users database connection."""
+    global _table_initialized
     conn = _get_connection()
     try:
-        _init_users_table(conn)
+        if not _table_initialized:
+            _init_users_table(conn)
+            _table_initialized = True
         yield conn
     finally:
         conn.close()
@@ -126,6 +136,28 @@ class SQLiteUserRepository(UserRepository):
             if row is None:
                 return None
             return self._row_to_user(dict(row))
+
+    async def update_user(self, user: User) -> User:
+        """Update an existing user in SQLite."""
+        return await asyncio.to_thread(self._update_user_sync, user)
+
+    def _update_user_sync(self, user: User) -> User:
+        with _get_users_conn() as conn:
+            conn.execute(
+                "UPDATE users SET email = ?, password_hash = ?, system_role = ?, oauth_provider = ?, oauth_id = ? WHERE id = ?",
+                (user.email, user.password_hash, user.system_role, user.oauth_provider, user.oauth_id, str(user.id)),
+            )
+            conn.commit()
+        return user
+
+    async def count_users(self) -> int:
+        """Return total number of registered users."""
+        return await asyncio.to_thread(self._count_users_sync)
+
+    def _count_users_sync(self) -> int:
+        with _get_users_conn() as conn:
+            cursor = conn.execute("SELECT COUNT(*) FROM users")
+            return cursor.fetchone()[0]
 
     async def get_user_by_oauth(self, provider: str, oauth_id: str) -> User | None:
         """Get user by OAuth provider and ID from SQLite."""

@@ -350,18 +350,21 @@ def test_auth_config_token_expiry_boundary_30_ok():
     assert config.token_expiry_days == 30
 
 
-def test_get_auth_config_missing_env_var_raises():
-    """get_auth_config() should raise when AUTH_JWT_SECRET is unset."""
+def test_get_auth_config_missing_env_var_generates_ephemeral(caplog):
+    """get_auth_config() auto-generates ephemeral secret when AUTH_JWT_SECRET is unset."""
+    import logging
+
     import app.gateway.auth.config as cfg
 
     old = cfg._auth_config
     cfg._auth_config = None
     try:
         with patch.dict(os.environ, {}, clear=True):
-            # Ensure AUTH_JWT_SECRET is not in env
             os.environ.pop("AUTH_JWT_SECRET", None)
-            with pytest.raises(ValueError, match="AUTH_JWT_SECRET"):
-                cfg.get_auth_config()
+            with caplog.at_level(logging.WARNING):
+                config = cfg.get_auth_config()
+            assert config.jwt_secret
+            assert any("AUTH_JWT_SECRET" in msg for msg in caplog.messages)
     finally:
         cfg._auth_config = old
 

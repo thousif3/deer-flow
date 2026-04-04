@@ -1,5 +1,7 @@
 """Authentication endpoints."""
 
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
@@ -10,9 +12,12 @@ from app.gateway.auth import (
 )
 from app.gateway.auth.config import get_auth_config
 from app.gateway.auth.errors import AuthErrorCode, AuthErrorResponse
-from app.gateway.deps import _get_local_provider, get_current_user_from_request
+from app.gateway.deps import get_current_user_from_request, get_local_provider
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
+
+_register_lock = asyncio.Lock()
+_setup_complete = False
 
 
 # ── Request/Response Models ──────────────────────────────────────────────
@@ -31,6 +36,13 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8)
 
 
+class ChangePasswordRequest(BaseModel):
+    """Request model for password change."""
+
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+
+
 class MessageResponse(BaseModel):
     """Generic message response."""
 
@@ -43,6 +55,20 @@ class MessageResponse(BaseModel):
 def _is_secure_request(request: Request) -> bool:
     """Detect whether the original client request was made over HTTPS."""
     return request.headers.get("x-forwarded-proto", request.url.scheme) == "https"
+
+
+def _set_session_cookie(response: Response, token: str, request: Request) -> None:
+    """Set the access_token HttpOnly cookie on the response."""
+    config = get_auth_config()
+    is_https = _is_secure_request(request)
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=is_https,
+        samesite="lax",
+        max_age=config.token_expiry_days * 24 * 3600 if is_https else None,
+    )
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────
@@ -59,7 +85,7 @@ async def login_local(
     Authenticates user with username (email) and password,
     sets JWT as HttpOnly cookie only (not in response body per RFC-001).
     """
-    user = await _get_local_provider().authenticate({"email": form_data.username, "password": form_data.password})
+    user = await get_local_provider().authenticate({"email": form_data.username, "password": form_data.password})
 
     if user is None:
         raise HTTPException(
@@ -67,39 +93,41 @@ async def login_local(
             detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Incorrect email or password").model_dump(),
         )
 
-    config = get_auth_config()
     token = create_access_token(str(user.id))
+    _set_session_cookie(response, token, request)
 
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        secure=_is_secure_request(request),
-        samesite="lax",
-        max_age=config.token_expiry_days * 24 * 3600,
-    )
-
-    return LoginResponse(expires_in=config.token_expiry_days * 24 * 3600)
+    return LoginResponse(expires_in=get_auth_config().token_expiry_days * 24 * 3600)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest):
-    """Register a new local user account."""
-    # Fast path: check if email exists first (avoids expensive hash computation on conflict)
-    existing = await _get_local_provider().get_user_by_email(body.email)
-    if existing is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
-        )
+async def register(request: Request, response: Response, body: RegisterRequest):
+    """Register a new local user account.
 
-    try:
-        user = await _get_local_provider().create_user(email=body.email, password=body.password)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
-        )
+    First registered user is automatically assigned the admin role.
+    All registrations auto-login by setting the session cookie.
+    """
+    global _setup_complete
+    provider = get_local_provider()
+
+    async with _register_lock:
+        if _setup_complete:
+            role = "user"
+        else:
+            user_count = await provider.count_users()
+            role = "admin" if user_count == 0 else "user"
+
+        try:
+            user = await provider.create_user(email=body.email, password=body.password, system_role=role)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
+            )
+
+        _setup_complete = True
+
+    token = create_access_token(str(user.id))
+    _set_session_cookie(response, token, request)
 
     return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role)
 
@@ -111,11 +139,43 @@ async def logout(request: Request, response: Response):
     return MessageResponse(message="Successfully logged out")
 
 
+@router.post("/change-password", response_model=MessageResponse)
+async def change_password(request: Request, body: ChangePasswordRequest):
+    """Change password for the currently authenticated user."""
+    from app.gateway.auth.password import hash_password_async, verify_password_async
+
+    user = await get_current_user_from_request(request)
+
+    if user.password_hash is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="OAuth users cannot change password").model_dump())
+
+    if not await verify_password_async(body.current_password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Current password is incorrect").model_dump())
+
+    new_hash = await hash_password_async(body.new_password)
+    user.password_hash = new_hash
+    await get_local_provider().update_user(user)
+
+    return MessageResponse(message="Password changed successfully")
+
+
 @router.get("/me", response_model=UserResponse)
 async def get_me(request: Request):
     """Get current authenticated user info."""
     user = await get_current_user_from_request(request)
     return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role)
+
+
+@router.get("/setup-status")
+async def setup_status():
+    """Check if initial admin setup is needed (no users registered yet)."""
+    global _setup_complete
+    if _setup_complete:
+        return {"needs_setup": False}
+    user_count = await get_local_provider().count_users()
+    if user_count > 0:
+        _setup_complete = True
+    return {"needs_setup": user_count == 0}
 
 
 # ── OAuth Endpoints (Future/Placeholder) ─────────────────────────────────

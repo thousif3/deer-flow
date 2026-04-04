@@ -240,15 +240,20 @@ def test_require_permission_denies_wrong_permission():
 # ── Weak JWT secret warning ──────────────────────────────────────────────────
 
 
-def test_missing_jwt_secret_raises(monkeypatch):
-    """get_auth_config() raises ValueError when AUTH_JWT_SECRET is unset."""
+def test_missing_jwt_secret_generates_ephemeral(monkeypatch, caplog):
+    """get_auth_config() auto-generates an ephemeral secret when AUTH_JWT_SECRET is unset."""
+    import logging
+
     import app.gateway.auth.config as config_module
 
     config_module._auth_config = None
     monkeypatch.delenv("AUTH_JWT_SECRET", raising=False)
 
-    with pytest.raises(ValueError, match="AUTH_JWT_SECRET"):
-        config_module.get_auth_config()
+    with caplog.at_level(logging.WARNING):
+        config = config_module.get_auth_config()
+
+    assert config.jwt_secret  # non-empty ephemeral secret
+    assert any("AUTH_JWT_SECRET" in msg for msg in caplog.messages)
 
     # Cleanup
     config_module._auth_config = None

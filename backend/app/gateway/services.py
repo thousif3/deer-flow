@@ -269,11 +269,9 @@ async def start_run(
 
     disconnect = DisconnectMode.cancel if body.on_disconnect == "cancel" else DisconnectMode.continue_
 
-    # Get optional user for multi-tenant isolation
-    from app.gateway.deps import get_optional_user_from_request
-
-    user = await get_optional_user_from_request(request)
-    user_id = str(user.id) if user else None
+    # Reuse auth context set by @require_auth decorator to avoid redundant DB lookup
+    auth = getattr(request.state, "auth", None)
+    user_id = str(auth.user.id) if auth and auth.user else None
 
     try:
         record = await run_mgr.create_or_reject(

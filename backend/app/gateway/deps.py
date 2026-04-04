@@ -63,7 +63,7 @@ _cached_local_provider: LocalAuthProvider | None = None
 _cached_repo: SQLiteUserRepository | None = None
 
 
-def _get_local_provider() -> LocalAuthProvider:
+def get_local_provider() -> LocalAuthProvider:
     """Get or create the cached LocalAuthProvider singleton."""
     global _cached_local_provider, _cached_repo
     if _cached_repo is None:
@@ -99,7 +99,7 @@ async def get_current_user_from_request(request: Request):
             detail=AuthErrorResponse(code=token_error_to_code(payload), message=f"Token error: {payload.value}").model_dump(),
         )
 
-    provider = _get_local_provider()
+    provider = get_local_provider()
     user = await provider.get_user(payload.sub)
     if user is None:
         raise HTTPException(

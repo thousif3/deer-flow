@@ -9,7 +9,7 @@ class UserRepository(ABC):
     """Abstract interface for user data storage.
 
     Implement this interface to support different storage backends
-    (SQLite, PostgreSQL, etc.)
+    (SQLite)
     """
 
     @abstractmethod
@@ -49,6 +49,23 @@ class UserRepository(ABC):
         Returns:
             User if found, None otherwise
         """
+        ...
+
+    @abstractmethod
+    async def update_user(self, user: User) -> User:
+        """Update an existing user.
+
+        Args:
+            user: User object with updated fields
+
+        Returns:
+            Updated User
+        """
+        ...
+
+    @abstractmethod
+    async def count_users(self) -> int:
+        """Return total number of registered users."""
         ...
 
     @abstractmethod
