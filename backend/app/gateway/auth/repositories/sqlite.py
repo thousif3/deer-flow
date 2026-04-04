@@ -64,12 +64,6 @@ def _init_users_table(conn: sqlite3.Connection) -> None:
         WHERE oauth_provider IS NOT NULL AND oauth_id IS NOT NULL
     """
     )
-    # Migrate existing databases: add new columns if missing
-    for col, default in [("needs_setup", "0"), ("token_version", "0")]:
-        try:
-            conn.execute(f"ALTER TABLE users ADD COLUMN {col} INTEGER NOT NULL DEFAULT {default}")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
     conn.commit()
 
 
