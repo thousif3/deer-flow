@@ -111,12 +111,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     config = get_gateway_config()
     logger.info(f"Starting API Gateway on {config.host}:{config.port}")
 
-    # Ensure admin user exists (auto-create on first boot)
-    await _ensure_admin_user(app)
-
     # Initialize LangGraph runtime components (StreamBridge, RunManager, checkpointer, store)
     async with langgraph_runtime(app):
         logger.info("LangGraph runtime initialised")
+
+        # Ensure admin user exists (auto-create on first boot)
+        # Must run AFTER langgraph_runtime so app.state.store is available for thread migration
+        await _ensure_admin_user(app)
 
         # Start IM channel service if any channels are configured
         try:
