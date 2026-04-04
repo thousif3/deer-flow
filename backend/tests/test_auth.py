@@ -240,6 +240,74 @@ def test_require_permission_denies_wrong_permission():
 # ── Weak JWT secret warning ──────────────────────────────────────────────────
 
 
+# ── User Model Fields ──────────────────────────────────────────────────────
+
+
+def test_user_model_has_needs_setup_default_false():
+    """New users default to needs_setup=False."""
+    user = User(email="test@example.com", password_hash="hash")
+    assert user.needs_setup is False
+
+
+def test_user_model_has_token_version_default_zero():
+    """New users default to token_version=0."""
+    user = User(email="test@example.com", password_hash="hash")
+    assert user.token_version == 0
+
+
+def test_user_model_needs_setup_true():
+    """Auto-created admin has needs_setup=True."""
+    user = User(email="admin@example.com", password_hash="hash", needs_setup=True)
+    assert user.needs_setup is True
+
+
+def test_sqlite_round_trip_new_fields():
+    """needs_setup and token_version survive create → read round-trip."""
+    import asyncio
+    import os
+    import tempfile
+    from pathlib import Path
+
+    from app.gateway.auth.repositories import sqlite as sqlite_mod
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = os.path.join(tmpdir, "test_users.db")
+        old_path = sqlite_mod._resolved_db_path
+        old_init = sqlite_mod._table_initialized
+        sqlite_mod._resolved_db_path = Path(db_path)
+        sqlite_mod._table_initialized = False
+        try:
+            repo = sqlite_mod.SQLiteUserRepository()
+            user = User(
+                email="setup@test.com",
+                password_hash="fakehash",
+                system_role="admin",
+                needs_setup=True,
+                token_version=3,
+            )
+            created = asyncio.run(repo.create_user(user))
+            assert created.needs_setup is True
+            assert created.token_version == 3
+
+            fetched = asyncio.run(repo.get_user_by_email("setup@test.com"))
+            assert fetched is not None
+            assert fetched.needs_setup is True
+            assert fetched.token_version == 3
+
+            fetched.needs_setup = False
+            fetched.token_version = 4
+            asyncio.run(repo.update_user(fetched))
+            refetched = asyncio.run(repo.get_user_by_id(str(fetched.id)))
+            assert refetched.needs_setup is False
+            assert refetched.token_version == 4
+        finally:
+            sqlite_mod._resolved_db_path = old_path
+            sqlite_mod._table_initialized = old_init
+
+
+# ── Weak JWT secret warning ──────────────────────────────────────────────────
+
+
 def test_missing_jwt_secret_generates_ephemeral(monkeypatch, caplog):
     """get_auth_config() auto-generates an ephemeral secret when AUTH_JWT_SECRET is unset."""
     import logging

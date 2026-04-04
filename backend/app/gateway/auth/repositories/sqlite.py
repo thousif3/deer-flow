@@ -35,6 +35,7 @@ def _get_connection() -> sqlite3.Connection:
     db_path = _get_users_db_path()
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
 
@@ -49,7 +50,9 @@ def _init_users_table(conn: sqlite3.Connection) -> None:
             system_role TEXT NOT NULL DEFAULT 'user',
             created_at REAL NOT NULL,
             oauth_provider TEXT,
-            oauth_id TEXT
+            oauth_id TEXT,
+            needs_setup INTEGER NOT NULL DEFAULT 0,
+            token_version INTEGER NOT NULL DEFAULT 0
         )
     """
     )
@@ -61,6 +64,12 @@ def _init_users_table(conn: sqlite3.Connection) -> None:
         WHERE oauth_provider IS NOT NULL AND oauth_id IS NOT NULL
     """
     )
+    # Migrate existing databases: add new columns if missing
+    for col, default in [("needs_setup", "0"), ("token_version", "0")]:
+        try:
+            conn.execute(f"ALTER TABLE users ADD COLUMN {col} INTEGER NOT NULL DEFAULT {default}")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
     conn.commit()
 
 
@@ -91,8 +100,8 @@ class SQLiteUserRepository(UserRepository):
             try:
                 conn.execute(
                     """
-                    INSERT INTO users (id, email, password_hash, system_role, created_at, oauth_provider, oauth_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO users (id, email, password_hash, system_role, created_at, oauth_provider, oauth_id, needs_setup, token_version)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         str(user.id),
@@ -102,6 +111,8 @@ class SQLiteUserRepository(UserRepository):
                         datetime.now(UTC).timestamp(),
                         user.oauth_provider,
                         user.oauth_id,
+                        int(user.needs_setup),
+                        user.token_version,
                     ),
                 )
                 conn.commit()
@@ -144,8 +155,8 @@ class SQLiteUserRepository(UserRepository):
     def _update_user_sync(self, user: User) -> User:
         with _get_users_conn() as conn:
             conn.execute(
-                "UPDATE users SET email = ?, password_hash = ?, system_role = ?, oauth_provider = ?, oauth_id = ? WHERE id = ?",
-                (user.email, user.password_hash, user.system_role, user.oauth_provider, user.oauth_id, str(user.id)),
+                "UPDATE users SET email = ?, password_hash = ?, system_role = ?, oauth_provider = ?, oauth_id = ?, needs_setup = ?, token_version = ? WHERE id = ?",
+                (user.email, user.password_hash, user.system_role, user.oauth_provider, user.oauth_id, int(user.needs_setup), user.token_version, str(user.id)),
             )
             conn.commit()
         return user
@@ -186,4 +197,6 @@ class SQLiteUserRepository(UserRepository):
             created_at=datetime.fromtimestamp(row["created_at"], tz=UTC),
             oauth_provider=row.get("oauth_provider"),
             oauth_id=row.get("oauth_id"),
+            needs_setup=bool(row.get("needs_setup", 0)),
+            token_version=int(row.get("token_version", 0)),
         )
