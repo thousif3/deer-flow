@@ -579,3 +579,97 @@ def test_api_register_duplicate_returns_structured_400():
     assert resp.status_code == 400
     body = resp.json()
     assert body["detail"]["code"] == "email_already_exists"
+
+
+# ── Cookie security: HTTP vs HTTPS ────────────────────────────────────
+
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}-{secrets.token_hex(4)}@test.com"
+
+
+def _get_set_cookie_headers(resp) -> list[str]:
+    """Extract all set-cookie header values from a TestClient response."""
+    return [v for k, v in resp.headers.multi_items() if k.lower() == "set-cookie"]
+
+
+def test_register_http_cookie_httponly_true_secure_false():
+    """HTTP register → access_token cookie is httponly=True, secure=False, no max_age."""
+    _setup_config()
+    client = _get_auth_client()
+    resp = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email("http-cookie"), "password": "password123"},
+    )
+    assert resp.status_code == 201
+    cookie_header = resp.headers.get("set-cookie", "")
+    assert "access_token=" in cookie_header
+    assert "httponly" in cookie_header.lower()
+    assert "secure" not in cookie_header.lower().replace("samesite", "")
+
+
+def test_register_https_cookie_httponly_true_secure_true():
+    """HTTPS register (x-forwarded-proto) → access_token cookie is httponly=True, secure=True, has max_age."""
+    _setup_config()
+    client = _get_auth_client()
+    resp = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email("https-cookie"), "password": "password123"},
+        headers={"x-forwarded-proto": "https"},
+    )
+    assert resp.status_code == 201
+    cookie_header = resp.headers.get("set-cookie", "")
+    assert "access_token=" in cookie_header
+    assert "httponly" in cookie_header.lower()
+    assert "secure" in cookie_header.lower()
+    assert "max-age" in cookie_header.lower()
+
+
+def test_login_https_sets_secure_cookie():
+    """HTTPS login → access_token cookie has secure flag."""
+    _setup_config()
+    client = _get_auth_client()
+    email = _unique_email("https-login")
+    client.post("/api/v1/auth/register", json={"email": email, "password": "password123"})
+    resp = client.post(
+        "/api/v1/auth/login/local",
+        data={"username": email, "password": "password123"},
+        headers={"x-forwarded-proto": "https"},
+    )
+    assert resp.status_code == 200
+    cookie_header = resp.headers.get("set-cookie", "")
+    assert "access_token=" in cookie_header
+    assert "httponly" in cookie_header.lower()
+    assert "secure" in cookie_header.lower()
+
+
+def test_csrf_cookie_secure_on_https():
+    """HTTPS register → csrf_token cookie has secure flag but NOT httponly."""
+    _setup_config()
+    client = _get_auth_client()
+    resp = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email("csrf-https"), "password": "password123"},
+        headers={"x-forwarded-proto": "https"},
+    )
+    assert resp.status_code == 201
+    csrf_cookies = [h for h in _get_set_cookie_headers(resp) if "csrf_token=" in h]
+    assert csrf_cookies, "csrf_token cookie not set on HTTPS register"
+    csrf_header = csrf_cookies[0]
+    assert "secure" in csrf_header.lower()
+    assert "httponly" not in csrf_header.lower()
+
+
+def test_csrf_cookie_not_secure_on_http():
+    """HTTP register → csrf_token cookie does NOT have secure flag."""
+    _setup_config()
+    client = _get_auth_client()
+    resp = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email("csrf-http"), "password": "password123"},
+    )
+    assert resp.status_code == 201
+    csrf_cookies = [h for h in _get_set_cookie_headers(resp) if "csrf_token=" in h]
+    assert csrf_cookies, "csrf_token cookie not set on HTTP register"
+    csrf_header = csrf_cookies[0]
+    assert "secure" not in csrf_header.lower().replace("samesite", "")
