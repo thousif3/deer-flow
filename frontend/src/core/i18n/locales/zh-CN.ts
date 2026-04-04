@@ -306,6 +306,7 @@ export const zhCN: Translations = {
     title: "设置",
     description: "根据你的偏好调整 DeerFlow 的界面和行为。",
     sections: {
+      account: "账号",
       appearance: "外观",
       memory: "记忆",
       tools: "工具",
