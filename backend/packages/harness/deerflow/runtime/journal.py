@@ -243,7 +243,7 @@ class RunJournal(BaseCallbackHandler):
 
     # -- Internal methods --
 
-    def _put(self, *, event_type: str, category: str, content: str = "", metadata: dict | None = None) -> None:
+    def _put(self, *, event_type: str, category: str, content: str | dict = "", metadata: dict | None = None) -> None:
         self._buffer.append({
             "thread_id": self.thread_id,
             "run_id": self.run_id,

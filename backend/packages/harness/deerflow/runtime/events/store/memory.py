@@ -29,7 +29,7 @@ class MemoryRunEventStore(RunEventStore):
         run_id: str,
         event_type: str,
         category: str,
-        content: str = "",
+        content: str | dict = "",
         metadata: dict | None = None,
         created_at: str | None = None,
     ) -> dict:

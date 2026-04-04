@@ -417,3 +417,88 @@ class TestDbBackedLifecycle:
         assert "run_end" in event_types
 
         await close_engine()
+
+
+class TestDictContent:
+    """Verify that store backends accept str | dict content."""
+
+    @pytest.mark.anyio
+    async def test_memory_store_dict_content(self):
+        store = MemoryRunEventStore()
+        record = await store.put(
+            thread_id="t1",
+            run_id="r1",
+            event_type="ai_message",
+            category="message",
+            content={"role": "assistant", "content": "Hello"},
+        )
+        assert record["content"] == {"role": "assistant", "content": "Hello"}
+        messages = await store.list_messages("t1")
+        assert len(messages) == 1
+        assert messages[0]["content"] == {"role": "assistant", "content": "Hello"}
+
+    @pytest.mark.anyio
+    async def test_memory_store_str_content_unchanged(self):
+        store = MemoryRunEventStore()
+        record = await store.put(
+            thread_id="t1",
+            run_id="r1",
+            event_type="ai_message",
+            category="message",
+            content="plain string",
+        )
+        assert record["content"] == "plain string"
+        assert isinstance(record["content"], str)
+
+    @pytest.mark.anyio
+    async def test_db_store_dict_content_roundtrip(self, tmp_path):
+        """Dict content survives DB roundtrip (JSON serialize on write, deserialize on read)."""
+        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from deerflow.runtime.events.store.db import DbRunEventStore
+
+        url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
+        await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
+        sf = get_session_factory()
+        store = DbRunEventStore(sf)
+
+        nested = {"role": "assistant", "content": "Hi", "metadata": {"model": "gpt-4", "tokens": [1, 2, 3]}}
+        record = await store.put(
+            thread_id="t1",
+            run_id="r1",
+            event_type="ai_message",
+            category="message",
+            content=nested,
+        )
+        assert record["content"] == nested
+
+        messages = await store.list_messages("t1")
+        assert len(messages) == 1
+        assert messages[0]["content"] == nested
+
+        await close_engine()
+
+    @pytest.mark.anyio
+    async def test_db_store_trace_dict_truncation(self, tmp_path):
+        """Large dict trace content is truncated with metadata flag."""
+        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from deerflow.runtime.events.store.db import DbRunEventStore
+
+        url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
+        await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
+        sf = get_session_factory()
+        store = DbRunEventStore(sf, max_trace_content=100)
+
+        large_dict = {"role": "assistant", "content": "x" * 200}
+        record = await store.put(
+            thread_id="t1",
+            run_id="r1",
+            event_type="llm_end",
+            category="trace",
+            content=large_dict,
+        )
+        assert record["metadata"].get("content_truncated") is True
+        # Content should be a truncated string (serialized JSON was too long)
+        assert isinstance(record["content"], str)
+        assert len(record["content"]) <= 100
+
+        await close_engine()

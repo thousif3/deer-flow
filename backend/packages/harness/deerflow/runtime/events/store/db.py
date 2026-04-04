@@ -6,6 +6,7 @@ at ``max_trace_content`` bytes to avoid bloating the database.
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
 from sqlalchemy import delete, func, select
@@ -28,16 +29,26 @@ class DbRunEventStore(RunEventStore):
         if isinstance(val, datetime):
             d["created_at"] = val.isoformat()
         d.pop("id", None)
+        # Restore dict content that was JSON-serialized on write
+        content = d.get("content", "")
+        if isinstance(content, str) and content and content[0] in ("{", "["):
+            try:
+                d["content"] = json.loads(content)
+            except (json.JSONDecodeError, ValueError):
+                pass
         return d
 
-    def _truncate_trace(self, category: str, content: str, metadata: dict | None) -> tuple[str, dict]:
-        if category == "trace" and len(content) > self._max_trace_content:
-            content = content[: self._max_trace_content]
-            metadata = {**(metadata or {}), "content_truncated": True}
+    def _truncate_trace(self, category: str, content: str | dict, metadata: dict | None) -> tuple[str | dict, dict]:
+        if category == "trace":
+            text = json.dumps(content, default=str, ensure_ascii=False) if isinstance(content, dict) else content
+            if len(text) > self._max_trace_content:
+                content = text[: self._max_trace_content]
+                metadata = {**(metadata or {}), "content_truncated": True}
         return content, metadata or {}
 
     async def put(self, *, thread_id, run_id, event_type, category, content="", metadata=None, created_at=None):
         content, metadata = self._truncate_trace(category, content, metadata)
+        db_content = json.dumps(content, default=str, ensure_ascii=False) if isinstance(content, dict) else content
         async with self._sf() as session:
             max_seq = await session.scalar(select(func.max(RunEventRow.seq)).where(RunEventRow.thread_id == thread_id))
             seq = (max_seq or 0) + 1
@@ -46,7 +57,7 @@ class DbRunEventStore(RunEventStore):
                 run_id=run_id,
                 event_type=event_type,
                 category=category,
-                content=content,
+                content=db_content,
                 event_metadata=metadata,
                 seq=seq,
                 created_at=datetime.fromisoformat(created_at) if created_at else datetime.now(UTC),
@@ -71,12 +82,13 @@ class DbRunEventStore(RunEventStore):
                 category = e.get("category", "trace")
                 metadata = e.get("metadata")
                 content, metadata = self._truncate_trace(category, content, metadata)
+                db_content = json.dumps(content, default=str, ensure_ascii=False) if isinstance(content, dict) else content
                 row = RunEventRow(
                     thread_id=e["thread_id"],
                     run_id=e["run_id"],
                     event_type=e["event_type"],
                     category=category,
-                    content=content,
+                    content=db_content,
                     event_metadata=metadata,
                     seq=seq,
                     created_at=datetime.fromisoformat(e["created_at"]) if e.get("created_at") else datetime.now(UTC),
