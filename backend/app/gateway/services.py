@@ -323,6 +323,7 @@ async def start_run(
             event_store=event_store,
             run_events_config=run_events_config,
             follow_up_to_run_id=follow_up_to_run_id,
+            thread_meta_repo=thread_meta_repo,
         )
     )
     record.task = task

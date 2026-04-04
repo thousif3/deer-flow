@@ -317,107 +317,31 @@ async def create_thread(body: ThreadCreateRequest, request: Request) -> ThreadRe
 
 @router.post("/search", response_model=list[ThreadResponse])
 async def search_threads(body: ThreadSearchRequest, request: Request) -> list[ThreadResponse]:
-    """Search and list threads.
+    """Search and list threads from the threads_meta table."""
+    from app.gateway.deps import get_thread_meta_repo
 
-    Two-phase approach:
+    repo = get_thread_meta_repo(request)
+    if repo is None:
+        raise HTTPException(status_code=503, detail="Thread metadata store not available")
 
-    **Phase 1 — Store (fast path, O(threads))**: returns threads that were
-    created or run through this Gateway.  Store records are tiny metadata
-    dicts so fetching all of them at once is cheap.
-
-    **Phase 2 — Checkpointer supplement (lazy migration)**: threads that
-    were created directly by LangGraph Server (and therefore absent from the
-    Store) are discovered here by iterating the shared checkpointer.  Any
-    newly found thread is immediately written to the Store so that the next
-    search skips Phase 2 for that thread — the Store converges to a full
-    index over time without a one-shot migration job.
-    """
-    store = get_store(request)
-    checkpointer = get_checkpointer(request)
-
-    # -----------------------------------------------------------------------
-    # Phase 1: Store
-    # -----------------------------------------------------------------------
-    merged: dict[str, ThreadResponse] = {}
-
-    if store is not None:
-        try:
-            items = await store.asearch(THREADS_NS, limit=10_000)
-        except Exception:
-            logger.warning("Store search failed — falling back to checkpointer only", exc_info=True)
-            items = []
-
-        for item in items:
-            val = item.value
-            merged[val["thread_id"]] = ThreadResponse(
-                thread_id=val["thread_id"],
-                status=val.get("status", "idle"),
-                created_at=str(val.get("created_at", "")),
-                updated_at=str(val.get("updated_at", "")),
-                metadata=val.get("metadata", {}),
-                values=val.get("values", {}),
-            )
-
-    # -----------------------------------------------------------------------
-    # Phase 2: Checkpointer supplement
-    # Discovers threads not yet in the Store (e.g. created by LangGraph
-    # Server) and lazily migrates them so future searches skip this phase.
-    # -----------------------------------------------------------------------
-    try:
-        async for checkpoint_tuple in checkpointer.alist(None):
-            cfg = getattr(checkpoint_tuple, "config", {})
-            thread_id = cfg.get("configurable", {}).get("thread_id")
-            if not thread_id or thread_id in merged:
-                continue
-
-            # Skip sub-graph checkpoints (checkpoint_ns is non-empty for those)
-            if cfg.get("configurable", {}).get("checkpoint_ns", ""):
-                continue
-
-            ckpt_meta = getattr(checkpoint_tuple, "metadata", {}) or {}
-            # Strip LangGraph internal keys from the user-visible metadata dict
-            user_meta = {k: v for k, v in ckpt_meta.items() if k not in ("created_at", "updated_at", "step", "source", "writes", "parents")}
-
-            # Extract state values (title) from the checkpoint's channel_values
-            checkpoint_data = getattr(checkpoint_tuple, "checkpoint", {}) or {}
-            channel_values = checkpoint_data.get("channel_values", {})
-            ckpt_values = {}
-            if title := channel_values.get("title"):
-                ckpt_values["title"] = title
-
-            thread_resp = ThreadResponse(
-                thread_id=thread_id,
-                status=_derive_thread_status(checkpoint_tuple),
-                created_at=str(ckpt_meta.get("created_at", "")),
-                updated_at=str(ckpt_meta.get("updated_at", ckpt_meta.get("created_at", ""))),
-                metadata=user_meta,
-                values=ckpt_values,
-            )
-            merged[thread_id] = thread_resp
-
-            # Lazy migration — write to Store so the next search finds it there
-            if store is not None:
-                try:
-                    await _store_upsert(store, thread_id, metadata=user_meta, values=ckpt_values or None)
-                except Exception:
-                    logger.debug("Failed to migrate thread %s to store (non-fatal)", thread_id)
-    except Exception:
-        logger.exception("Checkpointer scan failed during thread search")
-        # Don't raise — return whatever was collected from Store + partial scan
-
-    # -----------------------------------------------------------------------
-    # Phase 3: Filter → sort → paginate
-    # -----------------------------------------------------------------------
-    results = list(merged.values())
-
-    if body.metadata:
-        results = [r for r in results if all(r.metadata.get(k) == v for k, v in body.metadata.items())]
-
-    if body.status:
-        results = [r for r in results if r.status == body.status]
-
-    results.sort(key=lambda r: r.updated_at, reverse=True)
-    return results[body.offset : body.offset + body.limit]
+    rows = await repo.search(
+        metadata=body.metadata or None,
+        status=body.status,
+        limit=body.limit,
+        offset=body.offset,
+    )
+    return [
+        ThreadResponse(
+            thread_id=r["thread_id"],
+            status=r.get("status", "idle"),
+            created_at=r.get("created_at", ""),
+            updated_at=r.get("updated_at", ""),
+            metadata=r.get("metadata", {}),
+            values={"title": r["display_name"]} if r.get("display_name") else {},
+            interrupts={},
+        )
+        for r in rows
+    ]
 
 
 @router.patch("/{thread_id}", response_model=ThreadResponse)

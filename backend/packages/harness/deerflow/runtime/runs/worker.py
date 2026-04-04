@@ -48,6 +48,7 @@ async def run_agent(
     event_store: Any | None = None,
     run_events_config: Any | None = None,
     follow_up_to_run_id: str | None = None,
+    thread_meta_repo: Any | None = None,
 ) -> None:
     """Execute an agent in the background, publishing events to *bridge*."""
 
@@ -261,6 +262,19 @@ async def run_agent(
                     )
                 except Exception:
                     logger.warning("Failed to persist run completion for %s", run_id, exc_info=True)
+
+        # Sync title from checkpoint to threads_meta.display_name
+        if thread_meta_repo is not None and checkpointer is not None:
+            try:
+                ckpt_config = {"configurable": {"thread_id": thread_id, "checkpoint_ns": ""}}
+                ckpt_tuple = await checkpointer.aget_tuple(ckpt_config)
+                if ckpt_tuple is not None:
+                    ckpt = getattr(ckpt_tuple, "checkpoint", {}) or {}
+                    title = ckpt.get("channel_values", {}).get("title")
+                    if title:
+                        await thread_meta_repo.update_display_name(thread_id, title)
+            except Exception:
+                logger.debug("Failed to sync title for thread %s (non-fatal)", thread_id)
 
         await bridge.publish_end(run_id)
         asyncio.create_task(bridge.cleanup(run_id, delay=60))

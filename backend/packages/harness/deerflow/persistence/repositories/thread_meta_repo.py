@@ -78,6 +78,37 @@ class ThreadMetaRepository:
                 return True
             return row.owner_id == owner_id
 
+    async def search(
+        self,
+        *,
+        metadata: dict | None = None,
+        status: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[dict]:
+        """Search threads with optional metadata and status filters."""
+        stmt = select(ThreadMetaRow).order_by(ThreadMetaRow.updated_at.desc())
+        if status:
+            stmt = stmt.where(ThreadMetaRow.status == status)
+        stmt = stmt.limit(limit).offset(offset)
+        async with self._sf() as session:
+            result = await session.execute(stmt)
+            rows = [self._row_to_dict(r) for r in result.scalars()]
+
+        if metadata:
+            rows = [r for r in rows if all(r.get("metadata", {}).get(k) == v for k, v in metadata.items())]
+        return rows
+
+    async def update_display_name(self, thread_id: str, display_name: str) -> None:
+        """Update the display_name (title) for a thread."""
+        async with self._sf() as session:
+            await session.execute(
+                update(ThreadMetaRow)
+                .where(ThreadMetaRow.thread_id == thread_id)
+                .values(display_name=display_name, updated_at=datetime.now(UTC))
+            )
+            await session.commit()
+
     async def update_status(self, thread_id: str, status: str) -> None:
         async with self._sf() as session:
             await session.execute(update(ThreadMetaRow).where(ThreadMetaRow.thread_id == thread_id).values(status=status, updated_at=datetime.now(UTC)))
