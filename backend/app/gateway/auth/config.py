@@ -1,11 +1,15 @@
 """Authentication configuration for DeerFlow."""
 
+import logging
 import os
+import secrets
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class AuthConfig(BaseModel):
@@ -33,7 +37,14 @@ def get_auth_config() -> AuthConfig:
     if _auth_config is None:
         jwt_secret = os.environ.get("AUTH_JWT_SECRET")
         if not jwt_secret:
-            raise ValueError('AUTH_JWT_SECRET environment variable must be set. Generate a secure secret with: python -c "import secrets; print(secrets.token_urlsafe(32))"')
+            jwt_secret = secrets.token_urlsafe(32)
+            os.environ["AUTH_JWT_SECRET"] = jwt_secret
+            logger.warning(
+                "⚠ AUTH_JWT_SECRET is not set — using an auto-generated ephemeral secret. "
+                "Sessions will be invalidated on restart. "
+                "For production, add AUTH_JWT_SECRET to your .env file: "
+                'python -c "import secrets; print(secrets.token_urlsafe(32))"'
+            )
         _auth_config = AuthConfig(jwt_secret=jwt_secret)
     return _auth_config
 
