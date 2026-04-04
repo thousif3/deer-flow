@@ -98,8 +98,21 @@ def _check_rate_limit(ip: str) -> None:
         del _login_attempts[ip]
 
 
+_MAX_TRACKED_IPS = 10000
+
+
 def _record_login_failure(ip: str) -> None:
     """Record a failed login attempt for the given IP."""
+    # Evict expired lockouts when dict grows too large
+    if len(_login_attempts) >= _MAX_TRACKED_IPS:
+        now = time.time()
+        expired = [k for k, (c, t) in _login_attempts.items() if c >= _MAX_LOGIN_ATTEMPTS and now >= t]
+        for k in expired:
+            del _login_attempts[k]
+        # If still too large, drop oldest sub-threshold entries
+        if len(_login_attempts) >= _MAX_TRACKED_IPS:
+            _login_attempts.clear()
+
     record = _login_attempts.get(ip)
     if record is None:
         _login_attempts[ip] = (1, 0.0)
@@ -194,9 +207,10 @@ async def change_password(request: Request, response: Response, body: ChangePass
     if not await verify_password_async(body.current_password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Current password is incorrect").model_dump())
 
+    provider = get_local_provider()
+
     # Update email if provided
     if body.new_email is not None:
-        provider = get_local_provider()
         existing = await provider.get_user_by_email(body.new_email)
         if existing and str(existing.id) != str(user.id):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already in use").model_dump())
@@ -210,7 +224,7 @@ async def change_password(request: Request, response: Response, body: ChangePass
     if user.needs_setup and body.new_email is not None:
         user.needs_setup = False
 
-    await get_local_provider().update_user(user)
+    await provider.update_user(user)
 
     # Re-issue cookie with new token_version
     token = create_access_token(str(user.id), token_version=user.token_version)
