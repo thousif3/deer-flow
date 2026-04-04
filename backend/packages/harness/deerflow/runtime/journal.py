@@ -106,6 +106,7 @@ class RunJournal(BaseCallbackHandler):
         )
 
     def on_llm_end(self, response: Any, *, run_id: UUID, **kwargs: Any) -> None:
+        from deerflow.runtime.converters import langchain_to_openai_message
         from deerflow.runtime.serialization import serialize_lc_object
 
         try:
@@ -138,19 +139,29 @@ class RunJournal(BaseCallbackHandler):
             },
         )
 
-        # Message event: ai_message (only lead_agent final replies — no pending tool_calls)
+        # Message events: only lead_agent gets message-category events
         tool_calls = getattr(message, "tool_calls", None) or []
-        if caller == "lead_agent" and isinstance(content, str) and content and not tool_calls:
+        if caller == "lead_agent":
             resp_meta = getattr(message, "response_metadata", None) or {}
             model_name = resp_meta.get("model_name") if isinstance(resp_meta, dict) else None
-            self._put(
-                event_type="ai_message",
-                category="message",
-                content=content,
-                metadata={"model_name": model_name},
-            )
-            self._last_ai_msg = content[:2000]
-            self._msg_count += 1
+            if tool_calls:
+                # ai_tool_call: agent decided to use tools
+                self._put(
+                    event_type="ai_tool_call",
+                    category="message",
+                    content=langchain_to_openai_message(message),
+                    metadata={"model_name": model_name, "finish_reason": "tool_calls"},
+                )
+            elif isinstance(content, str) and content:
+                # ai_message: final text reply
+                self._put(
+                    event_type="ai_message",
+                    category="message",
+                    content={"role": "assistant", "content": content},
+                    metadata={"model_name": model_name, "finish_reason": "stop"},
+                )
+                self._last_ai_msg = content[:2000]
+                self._msg_count += 1
 
         # Token accumulation
         if self._track_tokens:
