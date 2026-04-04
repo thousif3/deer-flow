@@ -52,15 +52,20 @@ const authErrorSchema = z.object({
 });
 
 export function parseAuthError(data: unknown): AuthErrorResponse {
+  // Try top-level {code, message} first
   const parsed = authErrorSchema.safeParse(data);
   if (parsed.success) return parsed.data;
-  // Fallback for legacy string-detail responses
-  const detail =
-    typeof data === "object" &&
-    data !== null &&
-    "detail" in data &&
-    typeof (data as Record<string, unknown>).detail === "string"
-      ? ((data as Record<string, unknown>).detail as string)
-      : "Authentication failed";
-  return { code: "invalid_credentials", message: detail };
+
+  // Unwrap FastAPI's {detail: {code, message}} envelope
+  if (typeof data === "object" && data !== null && "detail" in data) {
+    const detail = (data as Record<string, unknown>).detail;
+    const nested = authErrorSchema.safeParse(detail);
+    if (nested.success) return nested.data;
+    // Legacy string-detail responses
+    if (typeof detail === "string") {
+      return { code: "invalid_credentials", message: detail };
+    }
+  }
+
+  return { code: "invalid_credentials", message: "Authentication failed" };
 }
