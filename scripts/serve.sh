@@ -236,7 +236,7 @@ run_service() {
 
     echo "Starting $name..."
     if $DAEMON_MODE; then
-        nohup sh -c "$cmd" &
+        nohup sh -c "$cmd" > /dev/null 2>&1 &
     else
         sh -c "$cmd" &
     fi
@@ -259,8 +259,14 @@ mkdir -p temp/client_body_temp temp/proxy_temp temp/fastcgi_temp temp/uwsgi_temp
 if ! $GATEWAY_MODE; then
     CONFIG_LOG_LEVEL=$(grep -m1 '^log_level:' config.yaml 2>/dev/null | awk '{print $2}' | tr -d ' ')
     LANGGRAPH_LOG_LEVEL="${LANGGRAPH_LOG_LEVEL:-${CONFIG_LOG_LEVEL:-info}}"
+    LANGGRAPH_JOBS_PER_WORKER="${LANGGRAPH_JOBS_PER_WORKER:-10}"
+    LANGGRAPH_ALLOW_BLOCKING="${LANGGRAPH_ALLOW_BLOCKING:-0}"
+    LANGGRAPH_ALLOW_BLOCKING_FLAG=""
+    if [ "$LANGGRAPH_ALLOW_BLOCKING" = "1" ]; then
+        LANGGRAPH_ALLOW_BLOCKING_FLAG="--allow-blocking"
+    fi
     run_service "LangGraph" \
-        "cd backend && NO_COLOR=1 uv run langgraph dev --no-browser --allow-blocking --server-log-level $LANGGRAPH_LOG_LEVEL $LANGGRAPH_EXTRA_FLAGS > ../logs/langgraph.log 2>&1" \
+        "cd backend && NO_COLOR=1 uv run langgraph dev --no-browser $LANGGRAPH_ALLOW_BLOCKING_FLAG --n-jobs-per-worker $LANGGRAPH_JOBS_PER_WORKER --server-log-level $LANGGRAPH_LOG_LEVEL $LANGGRAPH_EXTRA_FLAGS > ../logs/langgraph.log 2>&1" \
         2024 60
 else
     echo "⏩ Skipping LangGraph (Gateway mode — runtime embedded in Gateway)"
