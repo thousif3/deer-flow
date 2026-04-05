@@ -14,6 +14,7 @@ from app.gateway.routers import (
     mcp,
     memory,
     models,
+    portfolio_router,
     runs,
     skills,
     suggestions,
@@ -21,6 +22,7 @@ from app.gateway.routers import (
     threads,
     uploads,
 )
+from app.swarm.orchestrator import router as swarm_router
 from deerflow.config.app_config import get_app_config
 
 # Configure logging
@@ -189,6 +191,12 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # Agents API is mounted at /api/agents
     app.include_router(agents.router)
+
+    # TALON Phase 28 — Portfolio Hybrid Chat Router at /api/portfolio/chat
+    app.include_router(portfolio_router.router)
+
+    # TALON Phase 29 — AgentScope Swarm at /api/swarm/analyze
+    app.include_router(swarm_router)
 
     # Suggestions API is mounted at /api/threads/{thread_id}/suggestions
     app.include_router(suggestions.router)

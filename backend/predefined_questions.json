@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "version": "1.0",
+    "candidate": "Thousifuddin Shaik",
+    "last_updated": "2026-04-02"
+  },
+  "categories": {
+    "pm_behavioral": {
+      "label": "PM Behavioral",
+      "questions": [
+        {
+          "q": "Tell me about a time you managed a project with competing priorities.",
+          "a": "As Chief Placement Coordinator at CBIT, I managed 50+ concurrent recruitment pipelines for 1,000+ stakeholders simultaneously. I used a priority matrix to triage by deadline and stakeholder impact, holding weekly syncs with corporate partners to re-align as new roles came in.",
+          "tags": ["behavioral", "prioritization", "stakeholder"]
+        },
+        {
+          "q": "How do you handle a situation where a key stakeholder disagrees with your roadmap decision?",
+          "a": "I start by actively listening to understand their concern, then present data — user impact metrics, feasibility constraints, and alignment with business goals. At CBIT, I navigated disagreements between department heads and corporate partners by creating shared decision criteria upfront.",
+          "tags": ["behavioral", "conflict", "stakeholder"]
+        },
+        {
+          "q": "Describe how you've used data to influence a product or process decision.",
+          "a": "I built placement trend dashboards using SQL and Excel for CBIT leadership. Month-over-month data revealed a 30% drop in offer acceptance from one sector — I proposed and drove a targeted employer engagement sprint that reversed the trend.",
+          "tags": ["data", "influence", "decision-making"]
+        },
+        {
+          "q": "Walk me through how you run a sprint retrospective.",
+          "a": "As a CSM and CSPO, I follow the 4Ls format: Liked, Learned, Lacked, Longed For. I assign a timekeeper, ensure psychological safety, and close with concrete action items assigned to owners. I document outcomes in Confluence and track resolution in the next sprint.",
+          "tags": ["agile", "scrum", "retrospective"]
+        }
+      ]
+    },
+    "ba_behavioral": {
+      "label": "BA Behavioral",
+      "questions": [
+        {
+          "q": "How do you gather requirements from non-technical stakeholders?",
+          "a": "I use structured interviews, journey mapping, and 'as-a-user' story workshops. At Neural Nexus Club, I translated sponsor expectations into concrete deliverables for our 25-member technical team by building a requirements traceability matrix.",
+          "tags": ["requirements", "communication", "stakeholder"]
+        },
+        {
+          "q": "Describe a time you identified a process gap and drove improvement.",
+          "a": "At CBIT, I noticed that placement status data was siloed across departments. I led a process redesign using a unified tracking spreadsheet and automated weekly digest emails, cutting reporting lag from 5 days to same-day.",
+          "tags": ["process", "improvement", "analysis"]
+        },
+        {
+          "q": "How do you handle ambiguous or changing requirements mid-project?",
+          "a": "I schedule a requirements re-baseline session, document all changes in a change log, assess downstream impacts on timeline/scope/budget using a traceability matrix, and get formal sign-off before continuing.",
+          "tags": ["agile", "requirements", "change-management"]
+        }
+      ]
+    },
+    "technical_pm": {
+      "label": "Technical PM",
+      "questions": [
+        {
+          "q": "How do you bridge communication between engineering teams and business stakeholders?",
+          "a": "I create dual-track documentation: a detailed technical spec for engineers and an executive summary with KPIs and milestones for business stakeholders. I've done this at both CBIT and in my TALON project, translating AI pipeline architecture into business impact narratives.",
+          "tags": ["communication", "technical", "leadership"]
+        },
+        {
+          "q": "What does your approach to risk management look like in an Agile project?",
+          "a": "I maintain a living risk register with probability/impact ratings, reviewed each sprint. For high-probability risks, I build buffer into sprint capacity. For high-impact risks, I predefine escalation paths. My CSPO certification reinforced this with backlog risk grooming.",
+          "tags": ["risk", "agile", "planning"]
+        }
+      ]
+    },
+    "general_prep": {
+      "label": "General Interview Prep",
+      "tips": [
+        "Use X-Y-Z format for all behavioral answers: Accomplished [X] as measured by [Y] by doing [Z].",
+        "Lead with impact numbers first — e.g. '50+ projects, 1000+ stakeholders'.",
+        "Always mention F-1 CPT/OPT eligibility proactively to remove hiring manager uncertainty.",
+        "Close every answer by connecting back to the role's requirements.",
+        "Prepare 3 smart questions for the interviewer: team structure, success metrics at 90 days, tech stack evolution."
+      ]
+    }
+  }
+}

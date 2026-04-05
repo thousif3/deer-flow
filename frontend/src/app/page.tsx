@@ -6,6 +6,7 @@ import { CommunitySection } from "@/components/landing/sections/community-sectio
 import { SandboxSection } from "@/components/landing/sections/sandbox-section";
 import { SkillsSection } from "@/components/landing/sections/skills-section";
 import { WhatsNewSection } from "@/components/landing/sections/whats-new-section";
+import { DropBoxes } from "@/components/talon/DropBoxes";
 
 export default function LandingPage() {
   return (
@@ -17,6 +18,7 @@ export default function LandingPage() {
         <SkillsSection />
         <SandboxSection />
         <WhatsNewSection />
+        <DropBoxes />
         <CommunitySection />
       </main>
       <Footer />
