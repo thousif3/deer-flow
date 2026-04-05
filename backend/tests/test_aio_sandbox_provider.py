@@ -93,7 +93,7 @@ def test_join_host_path_preserves_windows_drive_letter_style():
 def test_get_thread_mounts_preserves_windows_host_path_style(tmp_path, monkeypatch):
     """Docker bind mount sources must keep Windows-style paths intact."""
     aio_mod = importlib.import_module("deerflow.community.aio_sandbox.aio_sandbox_provider")
-    monkeypatch.setenv("DEER_FLOW_HOST_BASE_DIR", r"C:\Users\demo\talon-flow\backend\.talon-flow")
+    monkeypatch.setenv("TALON_FLOW_HOST_BASE_DIR", r"C:\Users\demo\talon-flow\backend\.talon-flow")
     monkeypatch.setattr(aio_mod, "get_paths", lambda: Paths(base_dir=tmp_path))
 
     mounts = aio_mod.AioSandboxProvider._get_thread_mounts("thread-10")

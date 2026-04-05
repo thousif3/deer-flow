@@ -35,13 +35,13 @@ echo ""
 # ── Config check ─────────────────────────────────────────────────────────────
 
 if ! { \
-        [ -n "$DEER_FLOW_CONFIG_PATH" ] && [ -f "$DEER_FLOW_CONFIG_PATH" ] || \
+        [ -n "$TALON_FLOW_CONFIG_PATH" ] && [ -f "$TALON_FLOW_CONFIG_PATH" ] || \
         [ -f backend/config.yaml ] || \
         [ -f config.yaml ]; \
     }; then
     echo "✗ No TalonFlow config file found."
     echo "  Checked these locations:"
-    echo "    - $DEER_FLOW_CONFIG_PATH (when DEER_FLOW_CONFIG_PATH is set)"
+    echo "    - $TALON_FLOW_CONFIG_PATH (when TALON_FLOW_CONFIG_PATH is set)"
     echo "    - backend/config.yaml"
     echo "    - ./config.yaml"
     echo ""

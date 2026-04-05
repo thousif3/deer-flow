@@ -154,7 +154,7 @@ def test_app_config_reload_without_acp_agents_clears_previous_state(tmp_path, mo
         ],
     }
 
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(extensions_path))
+    monkeypatch.setenv("TALON_FLOW_EXTENSIONS_CONFIG_PATH", str(extensions_path))
 
     config_path.write_text(yaml.safe_dump(config_with_acp), encoding="utf-8")
     AppConfig.from_file(str(config_path))

@@ -173,10 +173,10 @@ start() {
     fi
     echo ""
     
-    # Set DEER_FLOW_ROOT for provisioner if not already set
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
-        echo -e "${BLUE}Setting DEER_FLOW_ROOT=$DEER_FLOW_ROOT${NC}"
+    # Set TALON_FLOW_ROOT for provisioner if not already set
+    if [ -z "$TALON_FLOW_ROOT" ]; then
+        export TALON_FLOW_ROOT="$PROJECT_ROOT"
+        echo -e "${BLUE}Setting TALON_FLOW_ROOT=$TALON_FLOW_ROOT${NC}"
         echo ""
     fi
     
@@ -265,10 +265,10 @@ logs() {
 
 # Stop Docker development environment
 stop() {
-    # DEER_FLOW_ROOT is referenced in docker-compose-dev.yaml; set it before
+    # TALON_FLOW_ROOT is referenced in docker-compose-dev.yaml; set it before
     # running compose down to suppress "variable is not set" warnings.
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    if [ -z "$TALON_FLOW_ROOT" ]; then
+        export TALON_FLOW_ROOT="$PROJECT_ROOT"
     fi
     echo "Stopping Docker development services..."
     cd "$DOCKER_DIR" && $COMPOSE_CMD down

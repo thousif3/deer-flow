@@ -308,8 +308,8 @@ MCP servers and skill states in a single file:
 
 ### Environment Variables
 
-- `DEER_FLOW_CONFIG_PATH` - Override config.yaml location
-- `DEER_FLOW_EXTENSIONS_CONFIG_PATH` - Override extensions_config.json location
+- `TALON_FLOW_CONFIG_PATH` - Override config.yaml location
+- `TALON_FLOW_EXTENSIONS_CONFIG_PATH` - Override extensions_config.json location
 - Model API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, etc.
 - Tool API keys: `TAVILY_API_KEY`, `GITHUB_TOKEN`, etc.
 

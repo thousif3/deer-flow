@@ -19,8 +19,8 @@ _CHANNEL_REGISTRY: dict[str, str] = {
     "telegram": "app.channels.telegram:TelegramChannel",
 }
 
-_CHANNELS_LANGGRAPH_URL_ENV = "DEER_FLOW_CHANNELS_LANGGRAPH_URL"
-_CHANNELS_GATEWAY_URL_ENV = "DEER_FLOW_CHANNELS_GATEWAY_URL"
+_CHANNELS_LANGGRAPH_URL_ENV = "TALON_FLOW_CHANNELS_LANGGRAPH_URL"
+_CHANNELS_GATEWAY_URL_ENV = "TALON_FLOW_CHANNELS_GATEWAY_URL"
 
 
 def _resolve_service_url(config: dict[str, Any], config_key: str, env_key: str, default: str) -> str:

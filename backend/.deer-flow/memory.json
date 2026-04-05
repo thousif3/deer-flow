@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-04-03T00:37:20.330437Z",
+  "user": {
+    "workContext": {
+      "summary": "",
+      "updatedAt": ""
+    },
+    "personalContext": {
+      "summary": "",
+      "updatedAt": ""
+    },
+    "topOfMind": {
+      "summary": "User is currently focused on researching hiring trends for Technical Program Managers (TPMs). This indicates an active interest in the job market, career paths, or hiring strategies related to this role.",
+      "updatedAt": "2026-04-03T00:37:20.328286Z"
+    }
+  },
+  "history": {
+    "recentMonths": {
+      "summary": "User has initiated research into the hiring trends for Technical Program Managers (TPMs), signaling a new interest in this professional domain and its associated job market.",
+      "updatedAt": "2026-04-03T00:37:20.328286Z"
+    },
+    "earlierContext": {
+      "summary": "",
+      "updatedAt": ""
+    },
+    "longTermBackground": {
+      "summary": "",
+      "updatedAt": ""
+    }
+  },
+  "facts": [
+    {
+      "id": "fact_743aa941",
+      "content": "Is interested in researching hiring trends for Technical Program Managers (TPMs).",
+      "category": "goal",
+      "confidence": 0.9,
+      "createdAt": "2026-04-03T00:37:20.328286Z",
+      "source": "debug-thread-001"
+    }
+  ]
+}

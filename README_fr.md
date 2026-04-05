@@ -238,7 +238,7 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour le guide complet de développement 
 
 Si vous préférez lancer les services en local :
 
-Prérequis : complétez d'abord les étapes de « Configuration » ci-dessus (`make config` et clés API des modèles). `make dev` nécessite un fichier de configuration valide (par défaut `config.yaml` à la racine du projet ; modifiable via `DEER_FLOW_CONFIG_PATH`).
+Prérequis : complétez d'abord les étapes de « Configuration » ci-dessus (`make config` et clés API des modèles). `make dev` nécessite un fichier de configuration valide (par défaut `config.yaml` à la racine du projet ; modifiable via `TALON_FLOW_CONFIG_PATH`).
 
 1. **Vérifier les prérequis** :
    ```bash

@@ -191,7 +191,7 @@ make down   # コンテナを停止して削除
 
 サービスをローカルで実行する場合：
 
-前提条件：上記の「設定」手順を先に完了してください（`make config`とモデルAPIキー）。`make dev`には有効な設定ファイルが必要です（デフォルトはプロジェクトルートの`config.yaml`。`DEER_FLOW_CONFIG_PATH`で上書き可能）。
+前提条件：上記の「設定」手順を先に完了してください（`make config`とモデルAPIキー）。`make dev`には有効な設定ファイルが必要です（デフォルトはプロジェクトルートの`config.yaml`。`TALON_FLOW_CONFIG_PATH`で上書き可能）。
 
 1. **前提条件の確認**：
    ```bash

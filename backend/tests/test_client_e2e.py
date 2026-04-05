@@ -7,7 +7,7 @@ Middle tier of the test pyramid:
 
 Core principle: use the real LLM from config.yaml, let config, middleware
 chain, tool registration, file I/O, and event serialization all run for real.
-Only DEER_FLOW_HOME is redirected to tmp_path for filesystem isolation.
+Only TALON_FLOW_HOME is redirected to tmp_path for filesystem isolation.
 
 Tests that call the LLM are marked ``requires_llm`` and skipped in CI.
 File-management tests (upload/list/delete) don't need LLM and run everywhere.
@@ -85,13 +85,13 @@ def _make_e2e_config() -> AppConfig:
 def e2e_env(tmp_path, monkeypatch):
     """Isolated filesystem environment for E2E tests.
 
-    - DEER_FLOW_HOME → tmp_path (all thread data lands in a temp dir)
+    - TALON_FLOW_HOME → tmp_path (all thread data lands in a temp dir)
     - Singletons reset so they pick up the new env
     - Title/memory/summarization disabled to avoid extra LLM calls
     - AppConfig built programmatically (avoids config.yaml param-name issues)
     """
     # 1. Filesystem isolation
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
+    monkeypatch.setenv("TALON_FLOW_HOME", str(tmp_path))
     monkeypatch.setattr("deerflow.config.paths._paths", None)
     monkeypatch.setattr("deerflow.sandbox.sandbox_provider._default_sandbox_provider", None)
 
@@ -661,7 +661,7 @@ class TestConfigManagement:
         # Set up a writable extensions_config.json
         config_file = tmp_path / "extensions_config.json"
         config_file.write_text(json.dumps({"mcpServers": {}, "skills": {}}))
-        monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
+        monkeypatch.setenv("TALON_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
 
         # Force reload so the singleton picks up our test file
         from deerflow.config.extensions_config import reload_extensions_config
@@ -688,7 +688,7 @@ class TestConfigManagement:
         """update_skill() writes extensions_config.json and invalidates the agent."""
         config_file = tmp_path / "extensions_config.json"
         config_file.write_text(json.dumps({"mcpServers": {}, "skills": {}}))
-        monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
+        monkeypatch.setenv("TALON_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
 
         from deerflow.config.extensions_config import reload_extensions_config
 
@@ -716,7 +716,7 @@ class TestConfigManagement:
         """update_skill() raises ValueError for nonexistent skill."""
         config_file = tmp_path / "extensions_config.json"
         config_file.write_text(json.dumps({"mcpServers": {}, "skills": {}}))
-        monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
+        monkeypatch.setenv("TALON_FLOW_EXTENSIONS_CONFIG_PATH", str(config_file))
 
         from deerflow.config.extensions_config import reload_extensions_config
 

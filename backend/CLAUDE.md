@@ -177,7 +177,7 @@ Setup: Copy `config.example.yaml` to `config.yaml` in the **project root** direc
 
 Configuration priority:
 1. Explicit `config_path` argument
-2. `DEER_FLOW_CONFIG_PATH` environment variable
+2. `TALON_FLOW_CONFIG_PATH` environment variable
 3. `config.yaml` in current directory (backend/)
 4. `config.yaml` in parent directory (project root - **recommended location**)
 
@@ -190,7 +190,7 @@ MCP servers and skills are configured together in `extensions_config.json` in pr
 
 Configuration priority:
 1. Explicit `config_path` argument
-2. `DEER_FLOW_EXTENSIONS_CONFIG_PATH` environment variable
+2. `TALON_FLOW_EXTENSIONS_CONFIG_PATH` environment variable
 3. `extensions_config.json` in current directory (backend/)
 4. `extensions_config.json` in parent directory (project root - **recommended location**)
 
@@ -318,7 +318,7 @@ Bridges external messaging platforms (Feishu, Slack, Telegram) to the TalonFlow 
 **Configuration** (`config.yaml` -> `channels`):
 - `langgraph_url` - LangGraph Server URL (default: `http://localhost:2024`)
 - `gateway_url` - Gateway API URL for auxiliary commands (default: `http://localhost:8001`)
-- In Docker Compose, IM channels run inside the `gateway` container, so `localhost` points back to that container. Use `http://langgraph:2024` / `http://gateway:8001`, or set `DEER_FLOW_CHANNELS_LANGGRAPH_URL` / `DEER_FLOW_CHANNELS_GATEWAY_URL`.
+- In Docker Compose, IM channels run inside the `gateway` container, so `localhost` points back to that container. Use `http://langgraph:2024` / `http://gateway:8001`, or set `TALON_FLOW_CHANNELS_LANGGRAPH_URL` / `TALON_FLOW_CHANNELS_GATEWAY_URL`.
 - Per-channel configs: `feishu` (app_id, app_secret), `slack` (bot_token, app_token), `telegram` (bot_token)
 
 ### Memory System (`packages/harness/deerflow/agents/memory/`)

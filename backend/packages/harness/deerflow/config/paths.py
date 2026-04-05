@@ -66,7 +66,7 @@ class Paths:
 
     BaseDir resolution (in priority order):
         1. Constructor argument `base_dir`
-        2. DEER_FLOW_HOME environment variable
+        2. TALON_FLOW_HOME environment variable
         3. Local dev fallback: cwd/.talon-flow  (when cwd is the backend/ dir)
         4. Default: $HOME/.talon-flow
     """
@@ -80,18 +80,18 @@ class Paths:
 
         When running inside Docker with a mounted Docker socket (DooD), the Docker
         daemon runs on the host and resolves mount paths against the host filesystem.
-        Set DEER_FLOW_HOST_BASE_DIR to the host-side path that corresponds to this
+        Set TALON_FLOW_HOST_BASE_DIR to the host-side path that corresponds to this
         container's base_dir so that sandbox container volume mounts work correctly.
 
         Falls back to base_dir when the env var is not set (native/local execution).
         """
-        if env := os.getenv("DEER_FLOW_HOST_BASE_DIR"):
+        if env := os.getenv("TALON_FLOW_HOST_BASE_DIR"):
             return Path(env)
         return self.base_dir
 
     def _host_base_dir_str(self) -> str:
         """Return the host base dir as a raw string for bind mounts."""
-        if env := os.getenv("DEER_FLOW_HOST_BASE_DIR"):
+        if env := os.getenv("TALON_FLOW_HOST_BASE_DIR"):
             return env
         return str(self.base_dir)
 
@@ -101,7 +101,7 @@ class Paths:
         if self._base_dir is not None:
             return self._base_dir
 
-        if env_home := os.getenv("DEER_FLOW_HOME"):
+        if env_home := os.getenv("TALON_FLOW_HOME"):
             return Path(env_home).resolve()
 
         cwd = Path.cwd()

@@ -3,7 +3,7 @@
 # Guidelines:
 # - Copy this file to `config.yaml` and customize it for your environment
 # - The default path of this configuration file is `config.yaml` in the current working directory.
-#   However you can change it using the `DEER_FLOW_CONFIG_PATH` environment variable.
+#   However you can change it using the `TALON_FLOW_CONFIG_PATH` environment variable.
 # - Environment variables are available for all field values. Example: `api_key: $OPENAI_API_KEY`
 # - The `use` path is a string that looks like "package_name.sub_package_name.module_name:class_name/variable_name".
 
@@ -617,7 +617,7 @@ checkpointer:
 #   # of localhost, for example:
 #   # langgraph_url: http://langgraph:2024
 #   # gateway_url: http://gateway:8001
-#   # You can also set DEER_FLOW_CHANNELS_LANGGRAPH_URL / DEER_FLOW_CHANNELS_GATEWAY_URL.
+#   # You can also set TALON_FLOW_CHANNELS_LANGGRAPH_URL / TALON_FLOW_CHANNELS_GATEWAY_URL.
 #
 #   # Optional: default mobile/session settings for all IM channels
 #   session:

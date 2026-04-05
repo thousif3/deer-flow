@@ -227,7 +227,7 @@ class AioSandboxProvider(SandboxProvider):
     def _get_skills_mount() -> tuple[str, str, bool] | None:
         """Get the skills directory mount configuration.
 
-        Mount source uses DEER_FLOW_HOST_SKILLS_PATH when running inside Docker (DooD)
+        Mount source uses TALON_FLOW_HOST_SKILLS_PATH when running inside Docker (DooD)
         so the host Docker daemon can resolve the path.
         """
         try:
@@ -237,7 +237,7 @@ class AioSandboxProvider(SandboxProvider):
 
             if skills_path.exists():
                 # When running inside Docker with DooD, use host-side skills path.
-                host_skills = os.environ.get("DEER_FLOW_HOST_SKILLS_PATH") or str(skills_path)
+                host_skills = os.environ.get("TALON_FLOW_HOST_SKILLS_PATH") or str(skills_path)
                 return (host_skills, container_path, True)  # Read-only for security
         except Exception as e:
             logger.warning(f"Could not setup skills mount: {e}")
