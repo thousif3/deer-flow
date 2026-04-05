@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide explains how to configure DeerFlow for your environment.
+This guide explains how to configure TalonFlow for your environment.
 
 ## Config Versioning
 
@@ -63,7 +63,7 @@ models:
 - `CodexChatModel` loads Codex CLI auth from `~/.codex/auth.json`
 - The Codex Responses endpoint currently rejects `max_tokens` and `max_output_tokens`, so `CodexChatModel` does not expose a request-level token cap
 - `ClaudeChatModel` accepts `CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR`, `CLAUDE_CODE_CREDENTIALS_PATH`, or plaintext `~/.claude/.credentials.json`
-- On macOS, DeerFlow does not probe Keychain automatically. Use `scripts/export_claude_code_oauth.py` to export Claude Code auth explicitly when needed
+- On macOS, TalonFlow does not probe Keychain automatically. Use `scripts/export_claude_code_oauth.py` to export Claude Code auth explicitly when needed
 
 To use OpenAI's `/v1/responses` endpoint with LangChain, keep using `langchain_openai:ChatOpenAI` and set:
 
@@ -202,7 +202,7 @@ tools:
 
 ### Sandbox
 
-DeerFlow supports multiple sandbox execution modes. Configure your preferred mode in `config.yaml`:
+TalonFlow supports multiple sandbox execution modes. Configure your preferred mode in `config.yaml`:
 
 **Local Execution** (runs sandbox code directly on the host machine):
 ```yaml
@@ -227,7 +227,7 @@ sandbox:
    provisioner_url: http://provisioner:8002
 ```
 
-When using Docker development (`make docker-start`), DeerFlow starts the `provisioner` service only if this provisioner mode is configured. In local or plain Docker sandbox modes, `provisioner` is skipped.
+When using Docker development (`make docker-start`), TalonFlow starts the `provisioner` service only if this provisioner mode is configured. In local or plain Docker sandbox modes, `provisioner` is skipped.
 
 See [Provisioner Setup Guide](../../docker/provisioner/README.md) for detailed configuration, prerequisites, and troubleshooting.
 
@@ -240,7 +240,7 @@ sandbox:
   allow_host_bash: false
 ```
 
-`allow_host_bash` is intentionally `false` by default. DeerFlow's local sandbox is a host-side convenience mode, not a secure shell isolation boundary. If you need `bash`, prefer `AioSandboxProvider`. Only set `allow_host_bash: true` for fully trusted single-user local workflows.
+`allow_host_bash` is intentionally `false` by default. TalonFlow's local sandbox is a host-side convenience mode, not a secure shell isolation boundary. If you need `bash`, prefer `AioSandboxProvider`. Only set `allow_host_bash: true` for fully trusted single-user local workflows.
 
 **Option 2: Docker Sandbox** (isolated, more secure):
 ```yaml
@@ -248,7 +248,7 @@ sandbox:
   use: deerflow.community.aio_sandbox:AioSandboxProvider
   port: 8080
   auto_start: true
-  container_prefix: deer-flow-sandbox
+  container_prefix: talon-flow-sandbox
 
   # Optional: Additional mounts
   mounts:
@@ -257,7 +257,7 @@ sandbox:
       read_only: false
 ```
 
-When you configure `sandbox.mounts`, DeerFlow exposes those `container_path` values in the agent prompt so the agent can discover and operate on mounted directories directly instead of assuming everything must live under `/mnt/user-data`.
+When you configure `sandbox.mounts`, TalonFlow exposes those `container_path` values in the agent prompt so the agent can discover and operate on mounted directories directly instead of assuming everything must live under `/mnt/user-data`.
 
 ### Skills
 
@@ -273,7 +273,7 @@ skills:
 ```
 
 **How Skills Work**:
-- Skills are stored in `deer-flow/skills/{public,custom}/`
+- Skills are stored in `talon-flow/skills/{public,custom}/`
 - Each skill has a `SKILL.md` file with metadata
 - Skills are automatically discovered and loaded
 - Available in both local and Docker sandbox via path mapping
@@ -302,11 +302,11 @@ The default GitHub API rate limits are quite restrictive. For frequent project r
 
 **Configuration Steps**:
 1. Uncomment the `GITHUB_TOKEN` line in the `.env` file and add your personal access token
-2. Restart the DeerFlow service to apply changes
+2. Restart the TalonFlow service to apply changes
 
 ## Environment Variables
 
-DeerFlow supports environment variable substitution using the `$` prefix:
+TalonFlow supports environment variable substitution using the `$` prefix:
 
 ```yaml
 models:
@@ -323,16 +323,16 @@ models:
 
 ## Configuration Location
 
-The configuration file should be placed in the **project root directory** (`deer-flow/config.yaml`), not in the backend directory.
+The configuration file should be placed in the **project root directory** (`talon-flow/config.yaml`), not in the backend directory.
 
 ## Configuration Priority
 
-DeerFlow searches for configuration in this order:
+TalonFlow searches for configuration in this order:
 
 1. Path specified in code via `config_path` argument
 2. Path from `DEER_FLOW_CONFIG_PATH` environment variable
 3. `config.yaml` in current working directory (typically `backend/` when running)
-4. `config.yaml` in parent directory (project root: `deer-flow/`)
+4. `config.yaml` in parent directory (project root: `talon-flow/`)
 
 ## Best Practices
 
@@ -346,7 +346,7 @@ DeerFlow searches for configuration in this order:
 ## Troubleshooting
 
 ### "Config file not found"
-- Ensure `config.yaml` exists in the **project root** directory (`deer-flow/config.yaml`)
+- Ensure `config.yaml` exists in the **project root** directory (`talon-flow/config.yaml`)
 - The backend searches parent directory by default, so root location is preferred
 - Alternatively, set `DEER_FLOW_CONFIG_PATH` environment variable to custom location
 
@@ -355,7 +355,7 @@ DeerFlow searches for configuration in this order:
 - Check that `$` prefix is used for env var references
 
 ### "Skills not loading"
-- Check that `deer-flow/skills/` directory exists
+- Check that `talon-flow/skills/` directory exists
 - Verify skills have valid `SKILL.md` files
 - Check `skills.path` configuration if using custom path
 

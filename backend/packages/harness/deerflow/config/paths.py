@@ -20,7 +20,7 @@ def _join_host_path(base: str, *parts: str) -> str:
     """Join host filesystem path segments while preserving native style.
 
     Docker Desktop on Windows expects bind mount sources to stay in Windows
-    path form (for example ``C:\\repo\\backend\\.deer-flow``).  Using
+    path form (for example ``C:\\repo\\backend\\.talon-flow``).  Using
     ``Path(base) / ...`` on a POSIX host can accidentally rewrite those paths
     with mixed separators, so this helper preserves the original style.
     """
@@ -46,7 +46,7 @@ def join_host_path(base: str, *parts: str) -> str:
 
 class Paths:
     """
-    Centralized path configuration for DeerFlow application data.
+    Centralized path configuration for TalonFlow application data.
 
     Directory layout (host side):
         {base_dir}/
@@ -67,8 +67,8 @@ class Paths:
     BaseDir resolution (in priority order):
         1. Constructor argument `base_dir`
         2. DEER_FLOW_HOME environment variable
-        3. Local dev fallback: cwd/.deer-flow  (when cwd is the backend/ dir)
-        4. Default: $HOME/.deer-flow
+        3. Local dev fallback: cwd/.talon-flow  (when cwd is the backend/ dir)
+        4. Default: $HOME/.talon-flow
     """
 
     def __init__(self, base_dir: str | Path | None = None) -> None:
@@ -106,9 +106,9 @@ class Paths:
 
         cwd = Path.cwd()
         if cwd.name == "backend" or (cwd / "pyproject.toml").exists():
-            return cwd / ".deer-flow"
+            return cwd / ".talon-flow"
 
-        return Path.home() / ".deer-flow"
+        return Path.home() / ".talon-flow"
 
     @property
     def memory_file(self) -> Path:

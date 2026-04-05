@@ -84,11 +84,11 @@ def create_app() -> FastAPI:
     """
 
     app = FastAPI(
-        title="DeerFlow API Gateway",
+        title="TalonFlow API Gateway",
         description="""
-## DeerFlow API Gateway
+## TalonFlow API Gateway
 
-API Gateway for DeerFlow - A LangGraph-based AI agent backend with sandbox execution capabilities.
+API Gateway for TalonFlow - A LangGraph-based AI agent backend with sandbox execution capabilities.
 
 ### Features
 
@@ -136,7 +136,7 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
             },
             {
                 "name": "threads",
-                "description": "Manage DeerFlow thread-local filesystem data",
+                "description": "Manage TalonFlow thread-local filesystem data",
             },
             {
                 "name": "agents",
@@ -220,7 +220,7 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
         Returns:
             Service health status information.
         """
-        return {"status": "healthy", "service": "deer-flow-gateway"}
+        return {"status": "healthy", "service": "talon-flow-gateway"}
 
     return app
 

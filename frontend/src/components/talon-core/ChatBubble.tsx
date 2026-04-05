@@ -2,7 +2,7 @@
 
 /**
  * ChatBubble.tsx — TALON Phase 28
- * Floating chat widget connected to DeerFlow /api/portfolio/chat on port 8000.
+ * Floating chat widget connected to TalonFlow /api/portfolio/chat on port 8000.
  * Supports Quick Action buttons for PM/BA interview prep flows.
  */
 
@@ -70,7 +70,7 @@ async function sendToPortfolioChat(message: string): Promise<{
   });
 
   if (!res.ok) {
-    throw new Error(`DeerFlow responded ${res.status}: ${await res.text()}`);
+    throw new Error(`TalonFlow responded ${res.status}: ${await res.text()}`);
   }
   return res.json() as Promise<{ type: string; data: unknown; thread_id: string }>;
 }
@@ -306,7 +306,7 @@ export default function ChatBubble() {
                 TALON Career Assistant
               </div>
               <div style={{ color: "#94a3b8", fontSize: 11 }}>
-                Powered by DeerFlow · Phase 28
+                Powered by TalonFlow · Phase 28
               </div>
             </div>
             <div

@@ -109,7 +109,7 @@ export function WorkspaceNavMenu() {
                     </DropdownMenuItem>
                   </a>
                   <a
-                    href="https://github.com/bytedance/deer-flow"
+                    href="https://github.com/bytedance/talon-flow"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -120,7 +120,7 @@ export function WorkspaceNavMenu() {
                   </a>
                   <DropdownMenuSeparator />
                   <a
-                    href="https://github.com/bytedance/deer-flow/issues"
+                    href="https://github.com/bytedance/talon-flow/issues"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

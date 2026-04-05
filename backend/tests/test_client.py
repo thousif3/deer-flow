@@ -1,4 +1,4 @@
-"""Tests for DeerFlowClient."""
+"""Tests for TalonFlowClient."""
 
 import asyncio
 import concurrent.futures
@@ -16,7 +16,7 @@ from app.gateway.routers.memory import MemoryConfigResponse, MemoryStatusRespons
 from app.gateway.routers.models import ModelResponse, ModelsListResponse
 from app.gateway.routers.skills import SkillInstallResponse, SkillResponse, SkillsListResponse
 from app.gateway.routers.uploads import UploadResponse
-from deerflow.client import DeerFlowClient
+from deerflow.client import TalonFlowClient
 from deerflow.config.paths import Paths
 from deerflow.uploads.manager import PathTraversalError
 
@@ -42,9 +42,9 @@ def mock_app_config():
 
 @pytest.fixture
 def client(mock_app_config):
-    """Create a DeerFlowClient with mocked config loading."""
+    """Create a TalonFlowClient with mocked config loading."""
     with patch("deerflow.client.get_app_config", return_value=mock_app_config):
-        return DeerFlowClient()
+        return TalonFlowClient()
 
 
 # ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ class TestClientInit:
     def test_custom_params(self, mock_app_config):
         mock_middleware = MagicMock()
         with patch("deerflow.client.get_app_config", return_value=mock_app_config):
-            c = DeerFlowClient(model_name="gpt-4", thinking_enabled=False, subagent_enabled=True, plan_mode=True, agent_name="test-agent", middlewares=[mock_middleware])
+            c = TalonFlowClient(model_name="gpt-4", thinking_enabled=False, subagent_enabled=True, plan_mode=True, agent_name="test-agent", middlewares=[mock_middleware])
         assert c._model_name == "gpt-4"
         assert c._thinking_enabled is False
         assert c._subagent_enabled is True
@@ -76,22 +76,22 @@ class TestClientInit:
     def test_invalid_agent_name(self, mock_app_config):
         with patch("deerflow.client.get_app_config", return_value=mock_app_config):
             with pytest.raises(ValueError, match="Invalid agent name"):
-                DeerFlowClient(agent_name="invalid name with spaces!")
+                TalonFlowClient(agent_name="invalid name with spaces!")
             with pytest.raises(ValueError, match="Invalid agent name"):
-                DeerFlowClient(agent_name="../path/traversal")
+                TalonFlowClient(agent_name="../path/traversal")
 
     def test_custom_config_path(self, mock_app_config):
         with (
             patch("deerflow.client.reload_app_config") as mock_reload,
             patch("deerflow.client.get_app_config", return_value=mock_app_config),
         ):
-            DeerFlowClient(config_path="/tmp/custom.yaml")
+            TalonFlowClient(config_path="/tmp/custom.yaml")
             mock_reload.assert_called_once_with("/tmp/custom.yaml")
 
     def test_checkpointer_stored(self, mock_app_config):
         cp = MagicMock()
         with patch("deerflow.client.get_app_config", return_value=mock_app_config):
-            c = DeerFlowClient(checkpointer=cp)
+            c = TalonFlowClient(checkpointer=cp)
         assert c._checkpointer is cp
 
 
@@ -357,7 +357,7 @@ class TestChat:
 
 class TestExtractText:
     def test_string(self):
-        assert DeerFlowClient._extract_text("hello") == "hello"
+        assert TalonFlowClient._extract_text("hello") == "hello"
 
     def test_list_text_blocks(self):
         content = [
@@ -365,16 +365,16 @@ class TestExtractText:
             {"type": "thinking", "thinking": "skip"},
             {"type": "text", "text": "second"},
         ]
-        assert DeerFlowClient._extract_text(content) == "first\nsecond"
+        assert TalonFlowClient._extract_text(content) == "first\nsecond"
 
     def test_list_plain_strings(self):
-        assert DeerFlowClient._extract_text(["a", "b"]) == "a\nb"
+        assert TalonFlowClient._extract_text(["a", "b"]) == "a\nb"
 
     def test_empty_list(self):
-        assert DeerFlowClient._extract_text([]) == ""
+        assert TalonFlowClient._extract_text([]) == ""
 
     def test_other_type(self):
-        assert DeerFlowClient._extract_text(42) == "42"
+        assert TalonFlowClient._extract_text(42) == "42"
 
 
 # ---------------------------------------------------------------------------
@@ -745,7 +745,7 @@ class TestMemoryManagement:
     def test_get_memory_config(self, client):
         config = MagicMock()
         config.enabled = True
-        config.storage_path = ".deer-flow/memory.json"
+        config.storage_path = ".talon-flow/memory.json"
         config.debounce_seconds = 30
         config.max_facts = 100
         config.fact_confidence_threshold = 0.7
@@ -761,7 +761,7 @@ class TestMemoryManagement:
     def test_get_memory_status(self, client):
         config = MagicMock()
         config.enabled = True
-        config.storage_path = ".deer-flow/memory.json"
+        config.storage_path = ".talon-flow/memory.json"
         config.debounce_seconds = 30
         config.max_facts = 100
         config.fact_confidence_threshold = 0.7
@@ -1415,7 +1415,7 @@ class TestScenarioMemoryWorkflow:
 
         config = MagicMock()
         config.enabled = True
-        config.storage_path = ".deer-flow/memory.json"
+        config.storage_path = ".talon-flow/memory.json"
         config.debounce_seconds = 30
         config.max_facts = 100
         config.fact_confidence_threshold = 0.7
@@ -1611,7 +1611,7 @@ class TestScenarioEdgeCases:
 
 
 class TestGatewayConformance:
-    """Validate that DeerFlowClient return dicts conform to Gateway Pydantic response models.
+    """Validate that TalonFlowClient return dicts conform to Gateway Pydantic response models.
 
     Each test calls a client method, then parses the result through the
     corresponding Gateway response model. If the client drifts (missing or
@@ -1628,7 +1628,7 @@ class TestGatewayConformance:
         mock_app_config.models = [model]
 
         with patch("deerflow.client.get_app_config", return_value=mock_app_config):
-            client = DeerFlowClient()
+            client = TalonFlowClient()
 
         result = client.list_models()
         parsed = ModelsListResponse(**result)
@@ -1647,7 +1647,7 @@ class TestGatewayConformance:
         mock_app_config.get_model_config.return_value = model
 
         with patch("deerflow.client.get_app_config", return_value=mock_app_config):
-            client = DeerFlowClient()
+            client = TalonFlowClient()
 
         result = client.get_model("test-model")
         assert result is not None
@@ -1768,7 +1768,7 @@ class TestGatewayConformance:
     def test_get_memory_config(self, client):
         mem_cfg = MagicMock()
         mem_cfg.enabled = True
-        mem_cfg.storage_path = ".deer-flow/memory.json"
+        mem_cfg.storage_path = ".talon-flow/memory.json"
         mem_cfg.debounce_seconds = 30
         mem_cfg.max_facts = 100
         mem_cfg.fact_confidence_threshold = 0.7
@@ -1785,7 +1785,7 @@ class TestGatewayConformance:
     def test_get_memory_status(self, client):
         mem_cfg = MagicMock()
         mem_cfg.enabled = True
-        mem_cfg.storage_path = ".deer-flow/memory.json"
+        mem_cfg.storage_path = ".talon-flow/memory.json"
         mem_cfg.debounce_seconds = 30
         mem_cfg.max_facts = 100
         mem_cfg.fact_confidence_threshold = 0.7
@@ -2022,7 +2022,7 @@ class TestAtomicWriteJson:
             bad_data = {"key": object()}
 
             with pytest.raises(TypeError):
-                DeerFlowClient._atomic_write_json(target, bad_data)
+                TalonFlowClient._atomic_write_json(target, bad_data)
 
             # Target should not have been created.
             assert not target.exists()
@@ -2036,7 +2036,7 @@ class TestAtomicWriteJson:
             target = Path(tmp) / "out.json"
             data = {"key": "value", "nested": [1, 2, 3]}
 
-            DeerFlowClient._atomic_write_json(target, data)
+            TalonFlowClient._atomic_write_json(target, data)
 
             assert target.exists()
             with open(target) as f:
@@ -2053,7 +2053,7 @@ class TestAtomicWriteJson:
 
             bad_data = {"key": object()}
             with pytest.raises(TypeError):
-                DeerFlowClient._atomic_write_json(target, bad_data)
+                TalonFlowClient._atomic_write_json(target, bad_data)
 
             # Original content must survive.
             with open(target) as f:
@@ -2198,7 +2198,7 @@ class TestStreamHardening:
 class TestSerializeMessage:
     def test_system_message(self):
         msg = SystemMessage(content="You are a helpful assistant.", id="sys-1")
-        result = DeerFlowClient._serialize_message(msg)
+        result = TalonFlowClient._serialize_message(msg)
         assert result["type"] == "system"
         assert result["content"] == "You are a helpful assistant."
         assert result["id"] == "sys-1"
@@ -2210,7 +2210,7 @@ class TestSerializeMessage:
         msg.content = "something"
         # Not an instance of AIMessage/ToolMessage/HumanMessage/SystemMessage
         type(msg).__name__ = "CustomMessage"
-        result = DeerFlowClient._serialize_message(msg)
+        result = TalonFlowClient._serialize_message(msg)
         assert result["type"] == "unknown"
         assert result["id"] == "unk-1"
 
@@ -2220,14 +2220,14 @@ class TestSerializeMessage:
             id="ai-tc",
             tool_calls=[{"name": "bash", "args": {"cmd": "ls"}, "id": "tc-1"}],
         )
-        result = DeerFlowClient._serialize_message(msg)
+        result = TalonFlowClient._serialize_message(msg)
         assert result["type"] == "ai"
         assert len(result["tool_calls"]) == 1
         assert result["tool_calls"][0]["name"] == "bash"
 
     def test_tool_message_non_string_content(self):
         msg = ToolMessage(content={"key": "value"}, id="tm-1", tool_call_id="tc-1", name="tool")
-        result = DeerFlowClient._serialize_message(msg)
+        result = TalonFlowClient._serialize_message(msg)
         assert result["type"] == "tool"
         assert isinstance(result["content"], str)
 

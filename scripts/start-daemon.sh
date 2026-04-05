@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# start-daemon.sh - Start all DeerFlow development services in daemon mode
+# start-daemon.sh - Start all TalonFlow development services in daemon mode
 #
-# This script starts DeerFlow services in the background without keeping
+# This script starts TalonFlow services in the background without keeping
 # the terminal connection. Logs are written to separate files.
 #
 # Must be run from the repo root directory.
@@ -21,14 +21,14 @@ pkill -f "next dev" 2>/dev/null || true
 nginx -c "$REPO_ROOT/docker/nginx/nginx.local.conf" -p "$REPO_ROOT" -s quit 2>/dev/null || true
 sleep 1
 pkill -9 nginx 2>/dev/null || true
-./scripts/cleanup-containers.sh deer-flow-sandbox 2>/dev/null || true
+./scripts/cleanup-containers.sh talon-flow-sandbox 2>/dev/null || true
 sleep 1
 
 # ── Banner ────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "=========================================="
-echo " Starting DeerFlow in Daemon Mode"
+echo " Starting TalonFlow in Daemon Mode"
 echo "=========================================="
 echo ""
 
@@ -39,7 +39,7 @@ if ! { \
         [ -f backend/config.yaml ] || \
         [ -f config.yaml ]; \
     }; then
-    echo "✗ No DeerFlow config file found."
+    echo "✗ No TalonFlow config file found."
     echo "  Checked these locations:"
     echo "    - $DEER_FLOW_CONFIG_PATH (when DEER_FLOW_CONFIG_PATH is set)"
     echo "    - backend/config.yaml"
@@ -123,7 +123,7 @@ echo "✓ Nginx started on localhost:2026"
 
 echo ""
 echo "=========================================="
-echo " DeerFlow is running in daemon mode!"
+echo " TalonFlow is running in daemon mode!"
 echo "=========================================="
 echo ""
 echo " 🌐 Application: http://localhost:2026"

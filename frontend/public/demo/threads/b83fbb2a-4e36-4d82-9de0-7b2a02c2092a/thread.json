@@ -618,9 +618,9 @@
       }
     ],
     "thread_data": {
-      "workspace_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/workspace",
-      "uploads_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/uploads",
-      "outputs_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/outputs"
+      "workspace_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/workspace",
+      "uploads_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/uploads",
+      "outputs_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/b83fbb2a-4e36-4d82-9de0-7b2a02c2092a/user-data/outputs"
     },
     "title": "Caren Skincare Landing Page Design",
     "artifacts": [

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# start.sh - Start all DeerFlow development services
+# start.sh - Start all TalonFlow development services
 #
 # Must be run from the repo root directory.
 
@@ -52,14 +52,14 @@ nginx -c "$REPO_ROOT/docker/nginx/nginx.local.conf" -p "$REPO_ROOT" -s quit 2>/d
 sleep 1
 pkill -9 nginx 2>/dev/null || true
 killall -9 nginx 2>/dev/null || true
-./scripts/cleanup-containers.sh deer-flow-sandbox 2>/dev/null || true
+./scripts/cleanup-containers.sh talon-flow-sandbox 2>/dev/null || true
 sleep 1
 
 # ── Banner ────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "=========================================="
-echo "  Starting DeerFlow Development Server"
+echo "  Starting TalonFlow Development Server"
 echo "=========================================="
 echo ""
 if $DEV_MODE; then
@@ -83,7 +83,7 @@ if ! { \
         [ -f backend/config.yaml ] || \
         [ -f config.yaml ]; \
     }; then
-    echo "✗ No DeerFlow config file found."
+    echo "✗ No TalonFlow config file found."
     echo "  Checked these locations:"
     echo "    - $DEER_FLOW_CONFIG_PATH (when DEER_FLOW_CONFIG_PATH is set)"
     echo "    - backend/config.yaml"
@@ -120,7 +120,7 @@ cleanup() {
     pkill -9 nginx 2>/dev/null || true
     killall -9 nginx 2>/dev/null || true
     echo "Cleaning up sandbox containers..."
-    ./scripts/cleanup-containers.sh deer-flow-sandbox 2>/dev/null || true
+    ./scripts/cleanup-containers.sh talon-flow-sandbox 2>/dev/null || true
     echo "✓ All services stopped"
     exit 0
 }
@@ -133,7 +133,7 @@ mkdir -p temp/client_body_temp temp/proxy_temp temp/fastcgi_temp temp/uwsgi_temp
 
 if $DEV_MODE; then
     LANGGRAPH_EXTRA_FLAGS="--no-reload"
-    GATEWAY_EXTRA_FLAGS="--reload --reload-include='*.yaml' --reload-include='.env' --reload-exclude='*.pyc' --reload-exclude='__pycache__' --reload-exclude='sandbox/' --reload-exclude='.deer-flow/'"
+    GATEWAY_EXTRA_FLAGS="--reload --reload-include='*.yaml' --reload-include='.env' --reload-exclude='*.pyc' --reload-exclude='__pycache__' --reload-exclude='sandbox/' --reload-exclude='.talon-flow/'"
 else
     LANGGRAPH_EXTRA_FLAGS="--no-reload"
     GATEWAY_EXTRA_FLAGS=""
@@ -198,9 +198,9 @@ echo "✓ Nginx started on localhost:2026"
 echo ""
 echo "=========================================="
 if $DEV_MODE; then
-    echo "  ✓ DeerFlow development server is running!"
+    echo "  ✓ TalonFlow development server is running!"
 else
-    echo "  ✓ DeerFlow production server is running!"
+    echo "  ✓ TalonFlow production server is running!"
 fi
 echo "=========================================="
 echo ""

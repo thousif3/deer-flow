@@ -24,7 +24,7 @@ QUESTIONS_FILE = Path(__file__).parent.parent.parent.parent / "predefined_questi
 
 INTERVIEW_KEYWORDS = {"interview", "questions", "prep", "practice", "mock", "behavioral", "q&a"}
 
-# Internal LangGraph / DeerFlow base URL (same process — gateway calls langgraph server)
+# Internal LangGraph / TalonFlow base URL (same process — gateway calls langgraph server)
 LANGGRAPH_URL = os.environ.get("LANGGRAPH_API_URL", "http://localhost:2024")
 
 
@@ -86,7 +86,7 @@ def _select_category(message: str, requested: str | None, questions: dict) -> di
 
 async def _forward_to_agent(message: str, thread_id: str, stream: bool) -> Any:
     """
-    Forward message to DeerFlow lead_agent via the LangGraph run endpoint.
+    Forward message to TalonFlow lead_agent via the LangGraph run endpoint.
     Returns parsed JSON body or raises HTTPException.
     """
     payload = {

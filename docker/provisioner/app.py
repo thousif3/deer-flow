@@ -1,4 +1,4 @@
-"""DeerFlow Sandbox Provisioner Service.
+"""TalonFlow Sandbox Provisioner Service.
 
 Dynamically creates and manages per-sandbox Pods in Kubernetes.
 Each ``sandbox_id`` gets its own Pod + NodePort Service.  The backend
@@ -53,13 +53,13 @@ logging.basicConfig(
 
 # ── Configuration (all tuneable via environment variables) ───────────────
 
-K8S_NAMESPACE = os.environ.get("K8S_NAMESPACE", "deer-flow")
+K8S_NAMESPACE = os.environ.get("K8S_NAMESPACE", "talon-flow")
 SANDBOX_IMAGE = os.environ.get(
     "SANDBOX_IMAGE",
     "enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest",
 )
 SKILLS_HOST_PATH = os.environ.get("SKILLS_HOST_PATH", "/skills")
-THREADS_HOST_PATH = os.environ.get("THREADS_HOST_PATH", "/.deer-flow/threads")
+THREADS_HOST_PATH = os.environ.get("THREADS_HOST_PATH", "/.talon-flow/threads")
 SAFE_THREAD_ID_PATTERN = r"^[A-Za-z0-9_\-]+$"
 
 # Path to the kubeconfig *inside* the provisioner container.
@@ -186,7 +186,7 @@ def _ensure_namespace() -> None:
                 metadata=k8s_client.V1ObjectMeta(
                     name=K8S_NAMESPACE,
                     labels={
-                        "app.kubernetes.io/name": "deer-flow",
+                        "app.kubernetes.io/name": "talon-flow",
                         "app.kubernetes.io/component": "sandbox",
                     },
                 )
@@ -210,7 +210,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="DeerFlow Sandbox Provisioner", lifespan=lifespan)
+app = FastAPI(title="TalonFlow Sandbox Provisioner", lifespan=lifespan)
 
 
 # ── Request / Response models ───────────────────────────────────────────
@@ -251,9 +251,9 @@ def _build_pod(sandbox_id: str, thread_id: str) -> k8s_client.V1Pod:
             name=_pod_name(sandbox_id),
             namespace=K8S_NAMESPACE,
             labels={
-                "app": "deer-flow-sandbox",
+                "app": "talon-flow-sandbox",
                 "sandbox-id": sandbox_id,
-                "app.kubernetes.io/name": "deer-flow",
+                "app.kubernetes.io/name": "talon-flow",
                 "app.kubernetes.io/component": "sandbox",
             },
         ),
@@ -348,9 +348,9 @@ def _build_service(sandbox_id: str) -> k8s_client.V1Service:
             name=_svc_name(sandbox_id),
             namespace=K8S_NAMESPACE,
             labels={
-                "app": "deer-flow-sandbox",
+                "app": "talon-flow-sandbox",
                 "sandbox-id": sandbox_id,
-                "app.kubernetes.io/name": "deer-flow",
+                "app.kubernetes.io/name": "talon-flow",
                 "app.kubernetes.io/component": "sandbox",
             },
         ),
@@ -519,7 +519,7 @@ async def list_sandboxes():
     try:
         services = core_v1.list_namespaced_service(
             K8S_NAMESPACE,
-            label_selector="app=deer-flow-sandbox",
+            label_selector="app=talon-flow-sandbox",
         )
     except ApiException as exc:
         raise HTTPException(

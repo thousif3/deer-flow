@@ -218,7 +218,7 @@ def _derive_thread_status(checkpoint_tuple) -> str:
 async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteResponse:
     """Delete local persisted filesystem data for a thread.
 
-    Cleans DeerFlow-managed thread directories, removes checkpoint data,
+    Cleans TalonFlow-managed thread directories, removes checkpoint data,
     and removes the thread record from the Store.
     """
     # Clean local filesystem

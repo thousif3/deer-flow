@@ -664,9 +664,9 @@
       }
     ],
     "thread_data": {
-      "workspace_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/workspace",
-      "uploads_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/uploads",
-      "outputs_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/outputs"
+      "workspace_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/workspace",
+      "uploads_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/uploads",
+      "outputs_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/c02bb4d5-4202-490e-ae8f-ff4864fc0d2e/user-data/outputs"
     },
     "uploaded_files": [],
     "title": "Pride and Prejudice Website Design",

@@ -1,4 +1,4 @@
-# Configuration for the DeerFlow application
+# Configuration for the TalonFlow application
 #
 # Guidelines:
 # - Copy this file to `config.yaml` and customize it for your environment
@@ -394,8 +394,8 @@ sandbox:
 #   # make room for new ones. Use a positive integer here; omit this field to use the default.
 #   # replicas: 3
 #
-#   # Optional: Prefix for container names (default: deer-flow-sandbox)
-#   # container_prefix: deer-flow-sandbox
+#   # Optional: Prefix for container names (default: talon-flow-sandbox)
+#   # container_prefix: talon-flow-sandbox
 #
 #   # Optional: Additional mount directories from host to container
 #   # NOTE: Skills directory is automatically mounted from skills.path to skills.container_path
@@ -405,7 +405,7 @@ sandbox:
 #   #     container_path: /home/user/shared
 #   #     read_only: false
 #   #
-#   #   # DeerFlow will surface configured container_path values to the agent,
+#   #   # TalonFlow will surface configured container_path values to the agent,
 #   #   # so it can directly read/write mounted directories such as /home/user/shared
 #
 #   # Optional: Environment variables to inject into the sandbox container
@@ -447,7 +447,7 @@ sandbox:
 
 # acp_agents:
 #   claude_code:
-#     # DeerFlow expects an ACP adapter here. The standard `claude` CLI does not
+#     # TalonFlow expects an ACP adapter here. The standard `claude` CLI does not
 #     # speak ACP directly. Install `claude-agent-acp` separately or use:
 #     command: npx
 #     args: ["-y", "@zed-industries/claude-agent-acp"]
@@ -458,7 +458,7 @@ sandbox:
 #     #   ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY  # $VAR resolves from host environment
 #
 #   codex:
-#     # DeerFlow expects an ACP adapter here. The standard `codex` CLI does not
+#     # TalonFlow expects an ACP adapter here. The standard `codex` CLI does not
 #     # speak ACP directly. Install `codex-acp` separately or use:
 #     command: npx
 #     args: ["-y", "@zed-industries/codex-acp"]
@@ -567,11 +567,11 @@ memory:
 # ============================================================================
 # Checkpointer Configuration
 # ============================================================================
-# Configure state persistence for the embedded DeerFlowClient.
+# Configure state persistence for the embedded TalonFlowClient.
 # The LangGraph Server manages its own state persistence separately
 # via the server infrastructure (this setting does not affect it).
 #
-# When configured, DeerFlowClient will automatically use this checkpointer,
+# When configured, TalonFlowClient will automatically use this checkpointer,
 # enabling multi-turn conversations to persist across process restarts.
 #
 # Supported types:
@@ -600,7 +600,7 @@ checkpointer:
 # ============================================================================
 # IM Channels Configuration
 # ============================================================================
-# Connect DeerFlow to external messaging platforms.
+# Connect TalonFlow to external messaging platforms.
 # All channels use outbound connections (WebSocket or polling) — no public IP required.
 
 # channels:

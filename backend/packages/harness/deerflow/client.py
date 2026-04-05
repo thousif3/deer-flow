@@ -1,12 +1,12 @@
-"""DeerFlowClient — Embedded Python client for DeerFlow agent system.
+"""TalonFlowClient — Embedded Python client for TalonFlow agent system.
 
-Provides direct programmatic access to DeerFlow's agent capabilities
+Provides direct programmatic access to TalonFlow's agent capabilities
 without requiring LangGraph Server or Gateway API processes.
 
 Usage:
-    from deerflow.client import DeerFlowClient
+    from deerflow.client import TalonFlowClient
 
-    client = DeerFlowClient()
+    client = TalonFlowClient()
     response = client.chat("Analyze this paper for me", thread_id="my-thread")
     print(response)
 
@@ -73,10 +73,10 @@ class StreamEvent:
     data: dict[str, Any] = field(default_factory=dict)
 
 
-class DeerFlowClient:
-    """Embedded Python client for DeerFlow agent system.
+class TalonFlowClient:
+    """Embedded Python client for TalonFlow agent system.
 
-    Provides direct programmatic access to DeerFlow's agent capabilities
+    Provides direct programmatic access to TalonFlow's agent capabilities
     without requiring LangGraph Server or Gateway API processes.
 
     Note:
@@ -91,9 +91,9 @@ class DeerFlowClient:
 
     Example::
 
-        from deerflow.client import DeerFlowClient
+        from deerflow.client import TalonFlowClient
 
-        client = DeerFlowClient()
+        client = TalonFlowClient()
 
         # Simple one-shot
         print(client.chat("hello"))
@@ -261,7 +261,7 @@ class DeerFlowClient:
         if isinstance(msg, ToolMessage):
             return {
                 "type": "tool",
-                "content": DeerFlowClient._extract_text(msg.content),
+                "content": TalonFlowClient._extract_text(msg.content),
                 "name": getattr(msg, "name", None),
                 "tool_call_id": getattr(msg, "tool_call_id", None),
                 "id": getattr(msg, "id", None),

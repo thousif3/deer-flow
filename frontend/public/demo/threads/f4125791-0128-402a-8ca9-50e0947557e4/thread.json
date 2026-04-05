@@ -151,9 +151,9 @@
       }
     ],
     "thread_data": {
-      "workspace_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/workspace",
-      "uploads_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/uploads",
-      "outputs_path": "/Users/henry/Desktop/deer-flow/backend/.deer-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/outputs"
+      "workspace_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/workspace",
+      "uploads_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/uploads",
+      "outputs_path": "/Users/henry/Desktop/talon-flow/backend/.talon-flow/threads/f4125791-0128-402a-8ca9-50e0947557e4/user-data/outputs"
     },
     "uploaded_files": [],
     "title": "Interactive 3D Weather Forecast Interface",

@@ -1,4 +1,4 @@
-"""End-to-end tests for DeerFlowClient.
+"""End-to-end tests for TalonFlowClient.
 
 Middle tier of the test pyramid:
 - Top:    test_client_live.py  — real LLM, needs API key
@@ -21,7 +21,7 @@ import zipfile
 import pytest
 from dotenv import load_dotenv
 
-from deerflow.client import DeerFlowClient, StreamEvent
+from deerflow.client import TalonFlowClient, StreamEvent
 from deerflow.config.app_config import AppConfig
 from deerflow.config.model_config import ModelConfig
 from deerflow.config.sandbox_config import SandboxConfig
@@ -137,8 +137,8 @@ def e2e_env(tmp_path, monkeypatch):
 
 @pytest.fixture()
 def client(e2e_env):
-    """A DeerFlowClient wired to the isolated e2e_env."""
-    return DeerFlowClient(checkpointer=None, thinking_enabled=False)
+    """A TalonFlowClient wired to the isolated e2e_env."""
+    return TalonFlowClient(checkpointer=None, thinking_enabled=False)
 
 
 # ---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ class TestFileUploadIntegration:
         test_file.parent.mkdir(parents=True, exist_ok=True)
         test_file.write_text("Hello world")
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         result = c.upload_files(tid, [test_file])
@@ -274,7 +274,7 @@ class TestFileUploadIntegration:
         (d1 / "data.txt").write_text("content A")
         (d2 / "data.txt").write_text("content B")
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         result = c.upload_files(tid, [d1 / "data.txt", d2 / "data.txt"])
@@ -290,7 +290,7 @@ class TestFileUploadIntegration:
         test_file = tmp_path / "lifecycle.txt"
         test_file.write_text("lifecycle test")
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         c.upload_files(tid, [test_file])
@@ -312,7 +312,7 @@ class TestFileUploadIntegration:
         test_file.parent.mkdir(parents=True, exist_ok=True)
         test_file.write_text("The secret code is 7749.")
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         c.upload_files(tid, [test_file])
@@ -345,7 +345,7 @@ class TestLifecycleAndConfig:
 
     def test_reset_agent_clears_state(self, e2e_env):
         """reset_agent() sets the internal agent to None."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         # Before any call, agent is None
         assert c._agent is None
 
@@ -355,7 +355,7 @@ class TestLifecycleAndConfig:
 
     def test_plan_mode_config_key(self, e2e_env):
         """plan_mode is part of the config key tuple."""
-        c = DeerFlowClient(checkpointer=None, plan_mode=False)
+        c = TalonFlowClient(checkpointer=None, plan_mode=False)
         cfg1 = c._get_runnable_config("test-thread")
         key1 = (
             cfg1["configurable"]["model_name"],
@@ -364,7 +364,7 @@ class TestLifecycleAndConfig:
             cfg1["configurable"]["subagent_enabled"],
         )
 
-        c2 = DeerFlowClient(checkpointer=None, plan_mode=True)
+        c2 = TalonFlowClient(checkpointer=None, plan_mode=True)
         cfg2 = c2._get_runnable_config("test-thread")
         key2 = (
             cfg2["configurable"]["model_name"],
@@ -426,13 +426,13 @@ class TestErrorAndBoundary:
 
     def test_upload_nonexistent_file_raises(self, e2e_env):
         """Uploading a file that doesn't exist raises FileNotFoundError."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(FileNotFoundError):
             c.upload_files("test-thread", ["/nonexistent/file.txt"])
 
     def test_delete_nonexistent_upload_raises(self, e2e_env):
         """Deleting a file that doesn't exist raises FileNotFoundError."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
         # Ensure the uploads dir exists first
         c.list_uploads(tid)
@@ -441,7 +441,7 @@ class TestErrorAndBoundary:
 
     def test_artifact_path_traversal_blocked(self, e2e_env):
         """get_artifact blocks path traversal attempts."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(ValueError):
             c.get_artifact("test-thread", "../../etc/passwd")
 
@@ -449,7 +449,7 @@ class TestErrorAndBoundary:
         """Uploading a directory (not a file) is rejected."""
         d = tmp_path / "a_directory"
         d.mkdir()
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(ValueError, match="not a file"):
             c.upload_files("test-thread", [d])
 
@@ -473,7 +473,7 @@ class TestArtifactAccess:
         """Write a file to outputs, then read it back via get_artifact()."""
         from deerflow.config.paths import get_paths
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         # Create an output file in the thread's outputs directory
@@ -489,7 +489,7 @@ class TestArtifactAccess:
         """Artifacts in subdirectories are accessible."""
         from deerflow.config.paths import get_paths
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         tid = str(uuid.uuid4())
 
         outputs_dir = get_paths().sandbox_outputs_dir(tid)
@@ -503,13 +503,13 @@ class TestArtifactAccess:
 
     def test_get_artifact_nonexistent_raises(self, e2e_env):
         """Reading a nonexistent artifact raises FileNotFoundError."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(FileNotFoundError):
             c.get_artifact("test-thread", "mnt/user-data/outputs/ghost.txt")
 
     def test_get_artifact_traversal_within_prefix_blocked(self, e2e_env):
         """Path traversal within the valid prefix is still blocked."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises((PermissionError, ValueError, FileNotFoundError)):
             c.get_artifact("test-thread", "mnt/user-data/outputs/../../etc/passwd")
 
@@ -549,7 +549,7 @@ class TestSkillInstallation:
     def test_install_skill_success(self, e2e_env, tmp_path):
         """A valid .skill archive installs to the custom skills directory."""
         archive = self._make_skill_zip(tmp_path)
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
 
         result = c.install_skill(archive)
         assert result["success"] is True
@@ -559,7 +559,7 @@ class TestSkillInstallation:
     def test_install_skill_duplicate_rejected(self, e2e_env, tmp_path):
         """Installing the same skill twice raises ValueError."""
         archive = self._make_skill_zip(tmp_path)
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
 
         c.install_skill(archive)
         with pytest.raises(ValueError, match="already exists"):
@@ -569,7 +569,7 @@ class TestSkillInstallation:
         """A file without .skill extension is rejected."""
         bad_file = tmp_path / "not_a_skill.zip"
         bad_file.write_bytes(b"PK\x03\x04")  # ZIP magic bytes
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(ValueError, match=".skill extension"):
             c.install_skill(bad_file)
 
@@ -584,13 +584,13 @@ class TestSkillInstallation:
             for file in skill_dir.rglob("*"):
                 zf.write(file, file.relative_to(tmp_path / "build"))
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(ValueError, match="Invalid skill"):
             c.install_skill(archive)
 
     def test_install_skill_nonexistent_file(self, e2e_env):
         """Installing from a nonexistent path raises FileNotFoundError."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(FileNotFoundError):
             c.install_skill("/nonexistent/skill.skill")
 
@@ -605,7 +605,7 @@ class TestConfigManagement:
 
     def test_list_models_returns_injected_config(self, e2e_env):
         """list_models() returns the model from the injected AppConfig."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.list_models()
         assert "models" in result
         assert len(result["models"]) == 1
@@ -614,7 +614,7 @@ class TestConfigManagement:
 
     def test_get_model_found(self, e2e_env):
         """get_model() returns the model when it exists."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         model = c.get_model("volcengine-ark")
         assert model is not None
         assert model["name"] == "volcengine-ark"
@@ -622,12 +622,12 @@ class TestConfigManagement:
 
     def test_get_model_not_found(self, e2e_env):
         """get_model() returns None for nonexistent model."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         assert c.get_model("nonexistent-model") is None
 
     def test_list_skills_returns_list(self, e2e_env):
         """list_skills() returns a dict with 'skills' key from real directory scan."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.list_skills()
         assert "skills" in result
         assert isinstance(result["skills"], list)
@@ -636,7 +636,7 @@ class TestConfigManagement:
 
     def test_get_skill_found(self, e2e_env):
         """get_skill() returns skill info for a known public skill."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         # 'deep-research' is a built-in public skill
         skill = c.get_skill("deep-research")
         if skill is not None:
@@ -646,12 +646,12 @@ class TestConfigManagement:
 
     def test_get_skill_not_found(self, e2e_env):
         """get_skill() returns None for nonexistent skill."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         assert c.get_skill("nonexistent-skill-xyz") is None
 
     def test_get_mcp_config_returns_dict(self, e2e_env):
         """get_mcp_config() returns a dict with 'mcp_servers' key."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.get_mcp_config()
         assert "mcp_servers" in result
         assert isinstance(result["mcp_servers"], dict)
@@ -668,7 +668,7 @@ class TestConfigManagement:
 
         reload_extensions_config()
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         # Simulate a cached agent
         c._agent = "fake-agent-placeholder"
         c._agent_config_key = ("a", "b", "c", "d")
@@ -694,7 +694,7 @@ class TestConfigManagement:
 
         reload_extensions_config()
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         c._agent = "fake-agent-placeholder"
         c._agent_config_key = ("a", "b", "c", "d")
 
@@ -722,7 +722,7 @@ class TestConfigManagement:
 
         reload_extensions_config()
 
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         with pytest.raises(ValueError, match="not found"):
             c.update_skill("nonexistent-skill-xyz", enabled=True)
 
@@ -737,19 +737,19 @@ class TestMemoryAccess:
 
     def test_get_memory_returns_dict(self, e2e_env):
         """get_memory() returns a dict (may be empty initial state)."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.get_memory()
         assert isinstance(result, dict)
 
     def test_reload_memory_returns_dict(self, e2e_env):
         """reload_memory() forces reload and returns a dict."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.reload_memory()
         assert isinstance(result, dict)
 
     def test_get_memory_config_fields(self, e2e_env):
         """get_memory_config() returns expected config fields."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.get_memory_config()
         assert "enabled" in result
         assert "storage_path" in result
@@ -761,7 +761,7 @@ class TestMemoryAccess:
 
     def test_get_memory_status_combines_config_and_data(self, e2e_env):
         """get_memory_status() returns both 'config' and 'data' keys."""
-        c = DeerFlowClient(checkpointer=None, thinking_enabled=False)
+        c = TalonFlowClient(checkpointer=None, thinking_enabled=False)
         result = c.get_memory_status()
         assert "config" in result
         assert "data" in result

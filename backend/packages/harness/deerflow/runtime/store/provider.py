@@ -1,7 +1,7 @@
 """Sync Store factory.
 
 Provides a **sync singleton** and a **sync context manager** for CLI tools
-and the embedded :class:`~deerflow.client.DeerFlowClient`.
+and the embedded :class:`~deerflow.client.TalonFlowClient`.
 
 The backend mirrors the configured checkpointer so that both always use the
 same persistence technology.  Supported backends: memory, sqlite, postgres.
