@@ -25,6 +25,16 @@ module.exports = {
         NODE_ENV: "production"
       },
       autorestart: true
+    },
+    {
+      name: "talon-frontend",
+      cwd: "/home/sandbox/talon-flow/frontend",
+      script: "npm",
+      args: "run dev -- -p 3001",
+      env: {
+        NODE_ENV: "development"
+      },
+      autorestart: true
     }
   ]
 };

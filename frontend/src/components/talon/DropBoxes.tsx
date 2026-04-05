@@ -54,7 +54,7 @@ export function DropBoxes() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl mx-auto p-6">
       {/* Job Link Drop Box */}
-      <Card className="bg-[#111] border-[#222] hover:border-[#333] transition-all">
+      <Card className="bg-slate-900/80 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl transition-all hover:border-slate-500">
         <CardHeader className="flex flex-row items-center space-x-2">
           <LinkIcon className="text-blue-500 w-5 h-5" />
           <CardTitle className="text-white text-lg">Job Link Drop Box</CardTitle>
@@ -65,7 +65,7 @@ export function DropBoxes() {
               placeholder="Paste Greenhouse/Workday URL..."
               value={jobLink}
               onChange={(e) => setJobLink(e.target.value)}
-              className="bg-[#050505] border-[#333] text-white focus:ring-blue-500"
+              className="bg-black border-slate-700 text-white focus:ring-blue-500 placeholder:text-slate-500"
             />
             <Button 
               type="submit" 
@@ -79,7 +79,7 @@ export function DropBoxes() {
       </Card>
 
       {/* Idea Drop Box */}
-      <Card className="bg-[#111] border-[#222] hover:border-[#333] transition-all">
+      <Card className="bg-slate-900/80 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl transition-all hover:border-slate-500">
         <CardHeader className="flex flex-row items-center space-x-2">
           <Lightbulb className="text-yellow-500 w-5 h-5" />
           <CardTitle className="text-white text-lg">Idea Drop Box</CardTitle>
@@ -90,7 +90,7 @@ export function DropBoxes() {
               placeholder="Brainstorm an AI app idea..."
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
-              className="bg-[#050505] border-[#333] text-white focus:ring-yellow-500"
+              className="bg-black border-slate-700 text-white focus:ring-yellow-500 placeholder:text-slate-500"
             />
             <Button 
               type="submit" 
