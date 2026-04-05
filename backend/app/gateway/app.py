@@ -23,7 +23,7 @@ from app.gateway.routers import (
     uploads,
 )
 from app.swarm.orchestrator import router as swarm_router
-from deerflow.config.app_config import get_app_config
+from talonflow.config.app_config import get_app_config
 
 # Configure logging
 logging.basicConfig(

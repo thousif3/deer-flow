@@ -1,15 +1,15 @@
-"""Tests for deerflow.models.factory.create_chat_model."""
+"""Tests for talonflow.models.factory.create_chat_model."""
 
 from __future__ import annotations
 
 import pytest
 from langchain.chat_models import BaseChatModel
 
-from deerflow.config.app_config import AppConfig
-from deerflow.config.model_config import ModelConfig
-from deerflow.config.sandbox_config import SandboxConfig
-from deerflow.models import factory as factory_module
-from deerflow.models import openai_codex_provider as codex_provider_module
+from talonflow.config.app_config import AppConfig
+from talonflow.config.model_config import ModelConfig
+from talonflow.config.sandbox_config import SandboxConfig
+from talonflow.models import factory as factory_module
+from talonflow.models import openai_codex_provider as codex_provider_module
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -19,7 +19,7 @@ from deerflow.models import openai_codex_provider as codex_provider_module
 def _make_app_config(models: list[ModelConfig]) -> AppConfig:
     return AppConfig(
         models=models,
-        sandbox=SandboxConfig(use="deerflow.sandbox.local:LocalSandboxProvider"),
+        sandbox=SandboxConfig(use="talonflow.sandbox.local:LocalSandboxProvider"),
     )
 
 
@@ -528,7 +528,7 @@ def test_codex_provider_disables_reasoning_when_thinking_disabled(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="deerflow.models.openai_codex_provider:CodexChatModel",
+                use="talonflow.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -548,7 +548,7 @@ def test_codex_provider_preserves_explicit_reasoning_effort(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="deerflow.models.openai_codex_provider:CodexChatModel",
+                use="talonflow.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -568,7 +568,7 @@ def test_codex_provider_defaults_reasoning_effort_to_medium(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="deerflow.models.openai_codex_provider:CodexChatModel",
+                use="talonflow.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
             )
@@ -588,7 +588,7 @@ def test_codex_provider_strips_unsupported_max_tokens(monkeypatch):
         [
             _make_model(
                 "codex",
-                use="deerflow.models.openai_codex_provider:CodexChatModel",
+                use="talonflow.models.openai_codex_provider:CodexChatModel",
                 supports_thinking=True,
                 supports_reasoning_effort=True,
                 max_tokens=4096,

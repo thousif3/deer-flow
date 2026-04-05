@@ -3,9 +3,9 @@
 import logging
 from dataclasses import replace
 
-from deerflow.sandbox.security import is_host_bash_allowed
-from deerflow.subagents.builtins import BUILTIN_SUBAGENTS
-from deerflow.subagents.config import SubagentConfig
+from talonflow.sandbox.security import is_host_bash_allowed
+from talonflow.subagents.builtins import BUILTIN_SUBAGENTS
+from talonflow.subagents.config import SubagentConfig
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def get_subagent_config(name: str) -> SubagentConfig | None:
         return None
 
     # Apply timeout override from config.yaml (lazy import to avoid circular deps)
-    from deerflow.config.subagents_config import get_subagents_app_config
+    from talonflow.config.subagents_config import get_subagents_app_config
 
     app_config = get_subagents_app_config()
     effective_timeout = app_config.get_timeout_for(name)

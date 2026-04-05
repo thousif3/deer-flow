@@ -5,7 +5,7 @@ import re
 
 import pytest
 
-from deerflow.runtime import END_SENTINEL, HEARTBEAT_SENTINEL, MemoryStreamBridge, make_stream_bridge
+from talonflow.runtime import END_SENTINEL, HEARTBEAT_SENTINEL, MemoryStreamBridge, make_stream_bridge
 
 # ---------------------------------------------------------------------------
 # Unit tests for MemoryStreamBridge

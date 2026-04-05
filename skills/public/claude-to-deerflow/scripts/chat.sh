@@ -5,20 +5,20 @@
 #   bash chat.sh "Your question here"
 #   bash chat.sh "Your question" <thread_id>          # continue conversation
 #   bash chat.sh "Your question" "" pro                # specify mode
-#   DEERFLOW_URL=http://host:2026 bash chat.sh "hi"   # custom endpoint
+#   TALONFLOW_URL=http://host:2026 bash chat.sh "hi"   # custom endpoint
 #
 # Environment variables:
-#   DEERFLOW_URL          — Unified proxy base URL (default: http://localhost:2026)
-#   DEERFLOW_GATEWAY_URL  — Gateway API base URL (default: $DEERFLOW_URL)
-#   DEERFLOW_LANGGRAPH_URL — LangGraph API base URL (default: $DEERFLOW_URL/api/langgraph)
+#   TALONFLOW_URL          — Unified proxy base URL (default: http://localhost:2026)
+#   TALONFLOW_GATEWAY_URL  — Gateway API base URL (default: $TALONFLOW_URL)
+#   TALONFLOW_LANGGRAPH_URL — LangGraph API base URL (default: $TALONFLOW_URL/api/langgraph)
 #
 # Modes: flash, standard, pro (default), ultra
 
 set -euo pipefail
 
-DEERFLOW_URL="${DEERFLOW_URL:-http://localhost:2026}"
-GATEWAY_URL="${DEERFLOW_GATEWAY_URL:-$DEERFLOW_URL}"
-LANGGRAPH_URL="${DEERFLOW_LANGGRAPH_URL:-$DEERFLOW_URL/api/langgraph}"
+TALONFLOW_URL="${TALONFLOW_URL:-http://localhost:2026}"
+GATEWAY_URL="${TALONFLOW_GATEWAY_URL:-$TALONFLOW_URL}"
+LANGGRAPH_URL="${TALONFLOW_LANGGRAPH_URL:-$TALONFLOW_URL/api/langgraph}"
 MESSAGE="${1:?Usage: chat.sh <message> [thread_id] [mode]}"
 THREAD_ID="${2:-}"
 MODE="${3:-pro}"
@@ -27,7 +27,7 @@ MODE="${3:-pro}"
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${GATEWAY_URL}/health" 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "000" ] || [ "$HTTP_CODE" -ge 400 ]; then
   echo "ERROR: TalonFlow is not reachable at ${GATEWAY_URL} (HTTP ${HTTP_CODE})" >&2
-  echo "Make sure TalonFlow is running. Start it with: cd <deerflow-dir> && make dev" >&2
+  echo "Make sure TalonFlow is running. Start it with: cd <talonflow.dir> && make dev" >&2
   exit 1
 fi
 

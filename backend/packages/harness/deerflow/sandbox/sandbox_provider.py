@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from deerflow.config import get_app_config
-from deerflow.reflection import resolve_class
-from deerflow.sandbox.sandbox import Sandbox
+from talonflow.config import get_app_config
+from talonflow.reflection import resolve_class
+from talonflow.sandbox.sandbox import Sandbox
 
 
 class SandboxProvider(ABC):

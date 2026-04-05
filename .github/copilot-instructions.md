@@ -143,12 +143,12 @@ Root-level orchestration and config:
 
 Backend core:
 
-- `backend/packages/harness/deerflow/agents/` - lead agent, middleware chain, memory
+- `backend/packages/harness/talonflow.agents/` - lead agent, middleware chain, memory
 - `backend/app/gateway/` - FastAPI gateway API
-- `backend/packages/harness/deerflow/sandbox/` - sandbox provider + tool wrappers
-- `backend/packages/harness/deerflow/subagents/` - subagent registry/execution
-- `backend/packages/harness/deerflow/mcp/` - MCP integration
-- `backend/langgraph.json` - graph entrypoint (`deerflow.agents:make_lead_agent`)
+- `backend/packages/harness/talonflow.sandbox/` - sandbox provider + tool wrappers
+- `backend/packages/harness/talonflow.subagents/` - subagent registry/execution
+- `backend/packages/harness/talonflow.mcp/` - MCP integration
+- `backend/langgraph.json` - graph entrypoint (`talonflow.agents:make_lead_agent`)
 - `backend/pyproject.toml` - Python deps and `requires-python`
 - `backend/ruff.toml` - lint/format policy
 - `backend/tests/` - backend unit and integration-like tests

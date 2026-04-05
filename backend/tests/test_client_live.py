@@ -12,9 +12,9 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.client import TalonFlowClient, StreamEvent
-from deerflow.sandbox.security import is_host_bash_allowed
-from deerflow.uploads.manager import PathTraversalError
+from talonflow.client import TalonFlowClient, StreamEvent
+from talonflow.sandbox.security import is_host_bash_allowed
+from talonflow.uploads.manager import PathTraversalError
 
 # Skip entire module in CI or when no config.yaml exists
 _skip_reason = None

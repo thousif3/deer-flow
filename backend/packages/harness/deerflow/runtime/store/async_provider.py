@@ -9,7 +9,7 @@ The store and checkpointer share the same ``checkpointer`` section in
 
 Usage (e.g. FastAPI lifespan)::
 
-    from deerflow.runtime.store import make_store
+    from talonflow.runtime.store import make_store
 
     async with make_store() as store:
         app.state.store = store
@@ -23,8 +23,8 @@ from collections.abc import AsyncIterator
 
 from langgraph.store.base import BaseStore
 
-from deerflow.config.app_config import get_app_config
-from deerflow.runtime.store.provider import POSTGRES_CONN_REQUIRED, POSTGRES_STORE_INSTALL, SQLITE_STORE_INSTALL, ensure_sqlite_parent_dir, resolve_sqlite_conn_str
+from talonflow.config.app_config import get_app_config
+from talonflow.runtime.store.provider import POSTGRES_CONN_REQUIRED, POSTGRES_STORE_INSTALL, SQLITE_STORE_INSTALL, ensure_sqlite_parent_dir, resolve_sqlite_conn_str
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 async def _async_store(config) -> AsyncIterator[BaseStore]:
     """Async context manager that constructs and tears down a Store.
 
-    The ``config`` argument is a :class:`deerflow.config.checkpointer_config.CheckpointerConfig`
+    The ``config`` argument is a :class:`talonflow.config.checkpointer_config.CheckpointerConfig`
     instance — the same object used by the checkpointer factory.
     """
     if config.type == "memory":
@@ -91,7 +91,7 @@ async def make_store() -> AsyncIterator[BaseStore]:
     configured checkpointer.
 
     Reads from the same ``checkpointer`` section of *config.yaml* used by
-    :func:`deerflow.agents.checkpointer.async_provider.make_checkpointer` so
+    :func:`talonflow.agents.checkpointer.async_provider.make_checkpointer` so
     that both singletons always use the same persistence technology::
 
         async with make_store() as store:

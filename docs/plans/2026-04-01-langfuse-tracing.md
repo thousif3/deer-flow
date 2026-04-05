@@ -98,7 +98,7 @@ Run: `cd backend && uv run pytest tests/test_tracing_config.py tests/test_model_
 
 **Step 2: Run lint if needed**
 
-Run: `cd backend && uv run ruff check packages/harness/deerflow/config/tracing_config.py packages/harness/deerflow/models/factory.py packages/harness/deerflow/tracing`
+Run: `cd backend && uv run ruff check packages/harness/talonflow.config/tracing_config.py packages/harness/talonflow.models/factory.py packages/harness/talonflow.tracing`
 
 **Step 3: Review diff**
 

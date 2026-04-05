@@ -89,7 +89,7 @@ The simplest option. Ships with TalonFlow. Block or allow tools by name. No exte
 guardrails:
   enabled: true
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: talonflow.guardrails.builtin:AllowlistProvider
     config:
       denied_tools: ["bash", "write_file"]
 ```
@@ -101,7 +101,7 @@ You can also use an allowlist (only these tools are permitted):
 guardrails:
   enabled: true
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: talonflow.guardrails.builtin:AllowlistProvider
     config:
       allowed_tools: ["web_search", "read_file", "ls"]
 ```
@@ -160,8 +160,8 @@ aport setup --framework deerflow
 ```
 
 This creates:
-- `~/.aport/deerflow/config.yaml` -- evaluator config (local or API mode)
-- `~/.aport/deerflow/aport/passport.json` -- OAP passport with capabilities and limits
+- `~/.aport/talonflow.config.yaml` -- evaluator config (local or API mode)
+- `~/.aport/talonflow.aport/passport.json` -- OAP passport with capabilities and limits
 
 **config.yaml (using APort as the provider):**
 ```yaml
@@ -220,7 +220,7 @@ class MyGuardrailProvider:
     name = "my-company"
 
     def evaluate(self, request):
-        from deerflow.guardrails.provider import GuardrailDecision, GuardrailReason
+        from talonflow.guardrails.provider import GuardrailDecision, GuardrailReason
 
         # Example: block any bash command containing "delete"
         if request.tool_name == "bash" and "delete" in str(request.tool_input):
@@ -320,12 +320,12 @@ Standard codes used by the [OAP specification](https://github.com/aporthq/aport-
 
 TalonFlow loads providers via `resolve_variable()` -- the same mechanism used for models, tools, and sandbox providers. The `use:` field is a Python class path: `package.module:ClassName`.
 
-The provider is instantiated with `**config` kwargs if `config:` is set, plus `framework="deerflow"` is always injected. Accept `**kwargs` to stay forward-compatible:
+The provider is instantiated with `**config` kwargs if `config:` is set, plus `framework="talonflow.` is always injected. Accept `**kwargs` to stay forward-compatible:
 
 ```python
 class YourProvider:
     def __init__(self, framework: str = "generic", **kwargs):
-        # framework="deerflow" tells you which config dir to use
+        # framework="talonflow. tells you which config dir to use
         ...
 ```
 
@@ -345,7 +345,7 @@ guardrails:
 
   # Provider: loaded by class path via resolve_variable
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: talonflow.guardrails.builtin:AllowlistProvider
     config:  # optional kwargs passed to provider.__init__
       denied_tools: ["bash"]
 ```
@@ -367,16 +367,16 @@ uv run python -m pytest tests/test_guardrail_middleware.py -v
 ## Files
 
 ```
-packages/harness/deerflow/guardrails/
+packages/harness/talonflow.guardrails/
     __init__.py              # Public exports
     provider.py              # GuardrailProvider protocol, GuardrailRequest, GuardrailDecision
     middleware.py             # GuardrailMiddleware (AgentMiddleware subclass)
     builtin.py               # AllowlistProvider (zero deps)
 
-packages/harness/deerflow/config/
+packages/harness/talonflow.config/
     guardrails_config.py     # GuardrailsConfig Pydantic model + singleton
 
-packages/harness/deerflow/agents/middlewares/
+packages/harness/talonflow.agents/middlewares/
     tool_error_handling_middleware.py  # Registers GuardrailMiddleware in chain
 
 config.example.yaml          # Three provider options documented

@@ -1,8 +1,8 @@
 from langchain.tools import tool
 
-from deerflow.community.jina_ai.jina_client import JinaClient
-from deerflow.config import get_app_config
-from deerflow.utils.readability import ReadabilityExtractor
+from talonflow.community.jina_ai.jina_client import JinaClient
+from talonflow.config import get_app_config
+from talonflow.utils.readability import ReadabilityExtractor
 
 readability_extractor = ReadabilityExtractor()
 

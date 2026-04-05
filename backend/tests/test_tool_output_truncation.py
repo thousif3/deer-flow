@@ -5,7 +5,7 @@ These functions truncate long tool outputs to prevent context window overflow.
 - _truncate_read_file_output: head-truncation, for read_file tool
 """
 
-from deerflow.sandbox.tools import _truncate_bash_output, _truncate_read_file_output
+from talonflow.sandbox.tools import _truncate_bash_output, _truncate_read_file_output
 
 # ---------------------------------------------------------------------------
 # _truncate_bash_output

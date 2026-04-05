@@ -7,8 +7,8 @@ from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langgraph.runtime import Runtime
 
-from deerflow.config.title_config import get_title_config
-from deerflow.models import create_chat_model
+from talonflow.config.title_config import get_title_config
+from talonflow.models import create_chat_model
 
 logger = logging.getLogger(__name__)
 

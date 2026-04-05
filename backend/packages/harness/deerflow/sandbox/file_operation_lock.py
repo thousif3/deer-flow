@@ -1,6 +1,6 @@
 import threading
 
-from deerflow.sandbox.sandbox import Sandbox
+from talonflow.sandbox.sandbox import Sandbox
 
 _FILE_OPERATION_LOCKS: dict[tuple[str, str], threading.Lock] = {}
 _FILE_OPERATION_LOCKS_GUARD = threading.Lock()

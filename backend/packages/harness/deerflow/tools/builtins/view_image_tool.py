@@ -8,7 +8,7 @@ from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 from langgraph.typing import ContextT
 
-from deerflow.agents.thread_state import ThreadState
+from talonflow.agents.thread_state import ThreadState
 
 
 @tool("view_image", parse_docstring=True)
@@ -31,7 +31,7 @@ def view_image_tool(
     Args:
         image_path: Absolute path to the image file. Common formats supported: jpg, jpeg, png, webp.
     """
-    from deerflow.sandbox.tools import get_thread_data, replace_virtual_path
+    from talonflow.sandbox.tools import get_thread_data, replace_virtual_path
 
     # Replace virtual path with actual path
     # /mnt/user-data/* paths are mapped to thread-specific directories

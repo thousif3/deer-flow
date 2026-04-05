@@ -10,7 +10,7 @@ import logging
 import os
 import subprocess
 
-from deerflow.utils.network import get_free_port, release_port
+from talonflow.utils.network import get_free_port, release_port
 
 from .backend import SandboxBackend, wait_for_sandbox_ready
 from .sandbox_info import SandboxInfo

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from deerflow.agents.memory.updater import (
+from talonflow.agents.memory.updater import (
     clear_memory_data,
     create_memory_fact,
     delete_memory_fact,
@@ -12,7 +12,7 @@ from deerflow.agents.memory.updater import (
     reload_memory_data,
     update_memory_fact,
 )
-from deerflow.config.memory_config import get_memory_config
+from talonflow.config.memory_config import get_memory_config
 
 router = APIRouter(prefix="/api", tags=["memory"])
 

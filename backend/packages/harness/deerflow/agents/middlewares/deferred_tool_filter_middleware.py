@@ -29,7 +29,7 @@ class DeferredToolFilterMiddleware(AgentMiddleware[AgentState]):
     """
 
     def _filter_tools(self, request: ModelRequest) -> ModelRequest:
-        from deerflow.tools.builtins.tool_search import get_deferred_registry
+        from talonflow.tools.builtins.tool_search import get_deferred_registry
 
         registry = get_deferred_registry()
         if not registry:

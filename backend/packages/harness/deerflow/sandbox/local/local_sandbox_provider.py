@@ -1,8 +1,8 @@
 import logging
 
-from deerflow.sandbox.local.local_sandbox import LocalSandbox
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from talonflow.sandbox.local.local_sandbox import LocalSandbox
+from talonflow.sandbox.sandbox import Sandbox
+from talonflow.sandbox.sandbox_provider import SandboxProvider
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class LocalSandboxProvider(SandboxProvider):
 
         # Map skills container path to local skills directory
         try:
-            from deerflow.config import get_app_config
+            from talonflow.config import get_app_config
 
             config = get_app_config()
             skills_path = config.skills.get_skills_path()

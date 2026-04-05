@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from urllib.parse import quote
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
+from talonflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
 
 
 class PathTraversalError(ValueError):

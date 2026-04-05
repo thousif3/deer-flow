@@ -10,9 +10,11 @@ import { DropBoxes } from "@/components/talon/DropBoxes";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen w-full bg-[#0a0a0a]">
+    <div 
+      className="min-h-screen w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0a0a] to-black"
+    >
       <Header />
-      <main className="flex w-full flex-col">
+      <main className="flex w-full flex-col bg-black/50 backdrop-blur-sm">
         <Hero />
         <CaseStudySection />
         <SkillsSection />

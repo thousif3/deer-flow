@@ -30,7 +30,7 @@ TalonFlow uses a YAML configuration file that should be placed in the **project 
 4. **Verify configuration**:
    ```bash
    cd backend
-   python -c "from deerflow.config import get_app_config; print('✓ Config loaded:', get_app_config().models[0].name)"
+   python -c "from talonflow.config import get_app_config; print('✓ Config loaded:', get_app_config().models[0].name)"
    ```
 
 ## Important Notes
@@ -51,7 +51,7 @@ The backend searches for `config.yaml` in this order:
 
 ## Sandbox Setup (Optional but Recommended)
 
-If you plan to use Docker/Container-based sandbox (configured in `config.yaml` under `sandbox.use: deerflow.community.aio_sandbox:AioSandboxProvider`), it's highly recommended to pre-pull the container image:
+If you plan to use Docker/Container-based sandbox (configured in `config.yaml` under `sandbox.use: talonflow.community.aio_sandbox:AioSandboxProvider`), it's highly recommended to pre-pull the container image:
 
 ```bash
 # From project root
@@ -72,7 +72,7 @@ If you skip this step, the image will be automatically pulled on first agent exe
 ```bash
 # Check where the backend is looking
 cd talon-flow/backend
-python -c "from deerflow.config.app_config import AppConfig; print(AppConfig.resolve_config_path())"
+python -c "from talonflow.config.app_config import AppConfig; print(AppConfig.resolve_config_path())"
 ```
 
 If it can't find the config:

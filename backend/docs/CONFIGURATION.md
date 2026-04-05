@@ -36,8 +36,8 @@ models:
 - OpenAI (`langchain_openai:ChatOpenAI`)
 - Anthropic (`langchain_anthropic:ChatAnthropic`)
 - DeepSeek (`langchain_deepseek:ChatDeepSeek`)
-- Claude Code OAuth (`deerflow.models.claude_provider:ClaudeChatModel`)
-- Codex CLI (`deerflow.models.openai_codex_provider:CodexChatModel`)
+- Claude Code OAuth (`talonflow.models.claude_provider:ClaudeChatModel`)
+- Codex CLI (`talonflow.models.openai_codex_provider:CodexChatModel`)
 - Any LangChain-compatible provider
 
 CLI-backed provider examples:
@@ -46,14 +46,14 @@ CLI-backed provider examples:
 models:
   - name: gpt-5.4
     display_name: GPT-5.4 (Codex CLI)
-    use: deerflow.models.openai_codex_provider:CodexChatModel
+    use: talonflow.models.openai_codex_provider:CodexChatModel
     model: gpt-5.4
     supports_thinking: true
     supports_reasoning_effort: true
 
   - name: claude-sonnet-4.6
     display_name: Claude Sonnet 4.6 (Claude Code OAuth)
-    use: deerflow.models.claude_provider:ClaudeChatModel
+    use: talonflow.models.claude_provider:ClaudeChatModel
     model: claude-sonnet-4-6
     max_tokens: 4096
     supports_thinking: true
@@ -145,13 +145,13 @@ HTTP 400 INVALID_ARGUMENT: function call `<tool>` in the N. content block is
 missing a `thought_signature`.
 ```
 
-Standard `langchain_openai:ChatOpenAI` silently drops `thought_signature` when serialising messages.  Use `deerflow.models.patched_openai:PatchedChatOpenAI` instead — it re-injects the tool-call signatures (sourced from `AIMessage.additional_kwargs["tool_calls"]`) into every outgoing payload:
+Standard `langchain_openai:ChatOpenAI` silently drops `thought_signature` when serialising messages.  Use `talonflow.models.patched_openai:PatchedChatOpenAI` instead — it re-injects the tool-call signatures (sourced from `AIMessage.additional_kwargs["tool_calls"]`) into every outgoing payload:
 
 ```yaml
 models:
   - name: gemini-2.5-pro-thinking
     display_name: Gemini 2.5 Pro (Thinking)
-    use: deerflow.models.patched_openai:PatchedChatOpenAI
+    use: talonflow.models.patched_openai:PatchedChatOpenAI
     model: google/gemini-2.5-pro-preview   # model name as expected by your gateway
     api_key: $GEMINI_API_KEY
     base_url: https://<your-openai-compat-gateway>/v1
@@ -186,7 +186,7 @@ Configure specific tools available to the agent:
 tools:
   - name: web_search
     group: web
-    use: deerflow.community.tavily.tools:web_search_tool
+    use: talonflow.community.tavily.tools:web_search_tool
     max_results: 5
     # api_key: $TAVILY_API_KEY  # Optional
 ```
@@ -207,14 +207,14 @@ TalonFlow supports multiple sandbox execution modes. Configure your preferred mo
 **Local Execution** (runs sandbox code directly on the host machine):
 ```yaml
 sandbox:
-   use: deerflow.sandbox.local:LocalSandboxProvider # Local execution
+   use: talonflow.sandbox.local:LocalSandboxProvider # Local execution
    allow_host_bash: false # default; host bash is disabled unless explicitly re-enabled
 ```
 
 **Docker Execution** (runs sandbox code in isolated Docker containers):
 ```yaml
 sandbox:
-   use: deerflow.community.aio_sandbox:AioSandboxProvider # Docker-based sandbox
+   use: talonflow.community.aio_sandbox:AioSandboxProvider # Docker-based sandbox
 ```
 
 **Docker Execution with Kubernetes** (runs sandbox code in Kubernetes pods via provisioner service):
@@ -223,7 +223,7 @@ This mode runs each sandbox in an isolated Kubernetes Pod on your **host machine
 
 ```yaml
 sandbox:
-   use: deerflow.community.aio_sandbox:AioSandboxProvider
+   use: talonflow.community.aio_sandbox:AioSandboxProvider
    provisioner_url: http://provisioner:8002
 ```
 
@@ -236,7 +236,7 @@ Choose between local execution or Docker-based isolation:
 **Option 1: Local Sandbox** (default, simpler setup):
 ```yaml
 sandbox:
-  use: deerflow.sandbox.local:LocalSandboxProvider
+  use: talonflow.sandbox.local:LocalSandboxProvider
   allow_host_bash: false
 ```
 
@@ -245,7 +245,7 @@ sandbox:
 **Option 2: Docker Sandbox** (isolated, more secure):
 ```yaml
 sandbox:
-  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  use: talonflow.community.aio_sandbox:AioSandboxProvider
   port: 8080
   auto_start: true
   container_prefix: talon-flow-sandbox

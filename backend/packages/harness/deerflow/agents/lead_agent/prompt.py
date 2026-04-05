@@ -1,9 +1,9 @@
 import logging
 from datetime import datetime
 
-from deerflow.config.agents_config import load_agent_soul
-from deerflow.skills import load_skills
-from deerflow.subagents import get_available_subagent_names
+from talonflow.config.agents_config import load_agent_soul
+from talonflow.skills import load_skills
+from talonflow.subagents import get_available_subagent_names
 
 logger = logging.getLogger(__name__)
 
@@ -358,8 +358,8 @@ def _get_memory_context(agent_name: str | None = None) -> str:
         Formatted memory context string wrapped in XML tags, or empty string if disabled.
     """
     try:
-        from deerflow.agents.memory import format_memory_for_injection, get_memory_data
-        from deerflow.config.memory_config import get_memory_config
+        from talonflow.agents.memory import format_memory_for_injection, get_memory_data
+        from talonflow.config.memory_config import get_memory_config
 
         config = get_memory_config()
         if not config.enabled or not config.injection_enabled:
@@ -389,7 +389,7 @@ def get_skills_prompt_section(available_skills: set[str] | None = None) -> str:
     skills = load_skills(enabled_only=True)
 
     try:
-        from deerflow.config import get_app_config
+        from talonflow.config import get_app_config
 
         config = get_app_config()
         container_base_path = config.skills.container_path
@@ -443,10 +443,10 @@ def get_deferred_tools_prompt_section() -> str:
     and can use tool_search to load them.
     Returns empty string when tool_search is disabled or no tools are deferred.
     """
-    from deerflow.tools.builtins.tool_search import get_deferred_registry
+    from talonflow.tools.builtins.tool_search import get_deferred_registry
 
     try:
-        from deerflow.config import get_app_config
+        from talonflow.config import get_app_config
 
         if not get_app_config().tool_search.enabled:
             return ""
@@ -464,7 +464,7 @@ def get_deferred_tools_prompt_section() -> str:
 def _build_acp_section() -> str:
     """Build the ACP agent prompt section, only if ACP agents are configured."""
     try:
-        from deerflow.config.acp_config import get_acp_agents
+        from talonflow.config.acp_config import get_acp_agents
 
         agents = get_acp_agents()
         if not agents:
@@ -484,7 +484,7 @@ def _build_acp_section() -> str:
 def _build_custom_mounts_section() -> str:
     """Build a prompt section for explicitly configured sandbox mounts."""
     try:
-        from deerflow.config import get_app_config
+        from talonflow.config import get_app_config
 
         mounts = get_app_config().sandbox.mounts or []
     except Exception:

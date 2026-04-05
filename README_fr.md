@@ -18,9 +18,9 @@ https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 ## Site officiel
 
-[<img width="2880" height="1600" alt="image" src="https://github.com/user-attachments/assets/a598c49f-3b2f-41ea-a052-05e21349188a" />](https://deerflow.tech)
+[<img width="2880" height="1600" alt="image" src="https://github.com/user-attachments/assets/a598c49f-3b2f-41ea-a052-05e21349188a" />](https://talonflow.dev)
 
-Découvrez-en plus et regardez des **démos réelles** sur notre [**site officiel**](https://deerflow.tech).
+Découvrez-en plus et regardez des **démos réelles** sur notre [**site officiel**](https://talonflow.dev).
 
 ## Coding Plan de ByteDance Volcengine
 
@@ -44,7 +44,7 @@ TalonFlow intègre désormais le toolkit de recherche et de crawling intelligent
 
 ## Table des matières
 
-- [🦌 TalonFlow - 2.0](#-deerflow---20)
+- [🦌 TalonFlow - 2.0](#-talonflow.--20)
   - [Site officiel](#site-officiel)
   - [InfoQuest](#infoquest)
   - [Table des matières](#table-des-matières)
@@ -148,14 +148,14 @@ Ce prompt est destiné aux coding agents. Il leur demande de cloner le dépôt s
    models:
      - name: gpt-5.4
        display_name: GPT-5.4 (Codex CLI)
-       use: deerflow.models.openai_codex_provider:CodexChatModel
+       use: talonflow.models.openai_codex_provider:CodexChatModel
        model: gpt-5.4
        supports_thinking: true
        supports_reasoning_effort: true
 
      - name: claude-sonnet-4.6
        display_name: Claude Sonnet 4.6 (Claude Code OAuth)
-       use: deerflow.models.claude_provider:ClaudeChatModel
+       use: talonflow.models.claude_provider:ClaudeChatModel
        model: claude-sonnet-4-6
        max_tokens: 4096
        supports_thinking: true
@@ -214,7 +214,7 @@ make docker-init    # Pull sandbox image (only once or when image updates)
 make docker-start   # Start services (auto-detects sandbox mode from config.yaml)
 ```
 
-`make docker-start` ne lance `provisioner` que si `config.yaml` utilise le mode provisioner (`sandbox.use: deerflow.community.aio_sandbox:AioSandboxProvider` avec `provisioner_url`).
+`make docker-start` ne lance `provisioner` que si `config.yaml` utilise le mode provisioner (`sandbox.use: talonflow.community.aio_sandbox:AioSandboxProvider` avec `provisioner_url`).
 Les processus backend récupèrent automatiquement les changements dans `config.yaml` au prochain accès à la configuration, donc les mises à jour de métadonnées des modèles ne nécessitent pas de redémarrage manuel en développement.
 
 > [!TIP]
@@ -450,7 +450,7 @@ Les suggestions de suivi générées par le Gateway normalisent désormais aussi
 
 #### Intégration Claude Code
 
-Le skill `claude-to-deerflow` vous permet d'interagir avec une instance TalonFlow en cours d'exécution directement depuis [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Envoyez des tâches de recherche, vérifiez le statut, gérez les threads — le tout sans quitter le terminal.
+Le skill `claude-to-talonflow. vous permet d'interagir avec une instance TalonFlow en cours d'exécution directement depuis [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Envoyez des tâches de recherche, vérifiez le statut, gérez les threads — le tout sans quitter le terminal.
 
 **Installer le skill** :
 
@@ -458,7 +458,7 @@ Le skill `claude-to-deerflow` vous permet d'interagir avec une instance TalonFlo
 npx skills add https://github.com/bytedance/talon-flow --skill claude-to-deerflow
 ```
 
-Assurez-vous ensuite que TalonFlow tourne (par défaut sur `http://localhost:2026`) et utilisez la commande `/claude-to-deerflow` dans Claude Code.
+Assurez-vous ensuite que TalonFlow tourne (par défaut sur `http://localhost:2026`) et utilisez la commande `/claude-to-talonflow. dans Claude Code.
 
 **Ce que vous pouvez faire** :
 - Envoyer des messages à TalonFlow et recevoir des réponses en streaming
@@ -470,12 +470,12 @@ Assurez-vous ensuite que TalonFlow tourne (par défaut sur `http://localhost:202
 **Variables d'environnement** (optionnel, pour des endpoints custom) :
 
 ```bash
-DEERFLOW_URL=http://localhost:2026            # Unified proxy base URL
-DEERFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
-DEERFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
+TALONFLOW_URL=http://localhost:2026            # Unified proxy base URL
+TALONFLOW_GATEWAY_URL=http://localhost:2026    # Gateway API
+TALONFLOW_LANGGRAPH_URL=http://localhost:2026/api/langgraph  # LangGraph API
 ```
 
-Voir [`skills/public/claude-to-deerflow/SKILL.md`](skills/public/claude-to-deerflow/SKILL.md) pour la référence API complète.
+Voir [`skills/public/claude-to-talonflow.SKILL.md`](skills/public/claude-to-talonflow.SKILL.md) pour la référence API complète.
 
 ### Sub-Agents
 
@@ -529,7 +529,7 @@ TalonFlow est agnostique en termes de modèle — il fonctionne avec n'importe q
 TalonFlow peut être utilisé comme bibliothèque Python intégrée sans lancer l'ensemble des services HTTP. Le `TalonFlowClient` fournit un accès direct in-process à toutes les capacités d'agent et de Gateway, en retournant les mêmes schémas de réponse que l'API HTTP Gateway. Le HTTP Gateway expose également `DELETE /api/threads/{thread_id}` pour supprimer les données de thread locales gérées par TalonFlow après la suppression du thread LangGraph :
 
 ```python
-from deerflow.client import TalonFlowClient
+from talonflow.client import TalonFlowClient
 
 client = TalonFlowClient()
 
@@ -548,7 +548,7 @@ client.update_skill("web-search", enabled=True)
 client.upload_files("thread-1", ["./report.pdf"])  # {"success": True, "files": [...]}
 ```
 
-Toutes les méthodes retournant des dicts sont validées en CI contre les modèles de réponse Pydantic du Gateway (`TestGatewayConformance`), garantissant que le client intégré reste synchronisé avec les schémas de l'API HTTP. Voir `backend/packages/harness/deerflow/client.py` pour la documentation API complète.
+Toutes les méthodes retournant des dicts sont validées en CI contre les modèles de réponse Pydantic du Gateway (`TestGatewayConformance`), garantissant que le client intégré reste synchronisé avec les schémas de l'API HTTP. Voir `backend/packages/harness/talonflow.client.py` pour la documentation API complète.
 
 ## Documentation
 

@@ -13,7 +13,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 
-from deerflow.runtime import RunManager, StreamBridge
+from talonflow.runtime import RunManager, StreamBridge
 
 
 @asynccontextmanager
@@ -25,8 +25,8 @@ async def langgraph_runtime(app: FastAPI) -> AsyncGenerator[None, None]:
         async with langgraph_runtime(app):
             yield
     """
-    from deerflow.agents.checkpointer.async_provider import make_checkpointer
-    from deerflow.runtime import make_store, make_stream_bridge
+    from talonflow.agents.checkpointer.async_provider import make_checkpointer
+    from talonflow.runtime import make_store, make_stream_bridge
 
     async with AsyncExitStack() as stack:
         app.state.stream_bridge = await stack.enter_async_context(make_stream_bridge())

@@ -8,9 +8,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from deerflow.config.agents_config import AGENT_NAME_PATTERN
-from deerflow.config.memory_config import get_memory_config
-from deerflow.config.paths import get_paths
+from talonflow.config.agents_config import AGENT_NAME_PATTERN
+from talonflow.config.memory_config import get_memory_config
+from talonflow.config.paths import get_paths
 
 logger = logging.getLogger(__name__)
 

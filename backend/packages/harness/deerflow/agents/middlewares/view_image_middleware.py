@@ -8,7 +8,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import ViewedImageData
+from talonflow.agents.thread_state import ViewedImageData
 
 logger = logging.getLogger(__name__)
 

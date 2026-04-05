@@ -1,7 +1,7 @@
 """Tests for subagent availability and prompt exposure under local bash hardening."""
 
-from deerflow.agents.lead_agent import prompt as prompt_module
-from deerflow.subagents import registry as registry_module
+from talonflow.agents.lead_agent import prompt as prompt_module
+from talonflow.subagents import registry as registry_module
 
 
 def test_get_available_subagent_names_hides_bash_when_host_bash_disabled(monkeypatch) -> None:

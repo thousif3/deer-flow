@@ -5,9 +5,9 @@ import json
 import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from deerflow.models.claude_provider import ClaudeChatModel
-from deerflow.models.credential_loader import CodexCliCredential
-from deerflow.models.openai_codex_provider import CodexChatModel
+from talonflow.models.claude_provider import ClaudeChatModel
+from talonflow.models.credential_loader import CodexCliCredential
+from talonflow.models.openai_codex_provider import CodexChatModel
 
 
 def test_codex_provider_rejects_non_positive_retry_attempts():

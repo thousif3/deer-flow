@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
-from deerflow.agents.memory.queue import ConversationContext, MemoryUpdateQueue
-from deerflow.config.memory_config import MemoryConfig
+from talonflow.agents.memory.queue import ConversationContext, MemoryUpdateQueue
+from talonflow.config.memory_config import MemoryConfig
 
 
 def _memory_config(**overrides: object) -> MemoryConfig:
@@ -15,7 +15,7 @@ def test_queue_add_preserves_existing_correction_flag_for_same_thread() -> None:
     queue = MemoryUpdateQueue()
 
     with (
-        patch("deerflow.agents.memory.queue.get_memory_config", return_value=_memory_config(enabled=True)),
+        patch("talonflow.agents.memory.queue.get_memory_config", return_value=_memory_config(enabled=True)),
         patch.object(queue, "_reset_timer"),
     ):
         queue.add(thread_id="thread-1", messages=["first"], correction_detected=True)
@@ -39,7 +39,7 @@ def test_process_queue_forwards_correction_flag_to_updater() -> None:
     mock_updater = MagicMock()
     mock_updater.update_memory.return_value = True
 
-    with patch("deerflow.agents.memory.updater.MemoryUpdater", return_value=mock_updater):
+    with patch("talonflow.agents.memory.updater.MemoryUpdater", return_value=mock_updater):
         queue._process_queue()
 
     mock_updater.update_memory.assert_called_once_with(

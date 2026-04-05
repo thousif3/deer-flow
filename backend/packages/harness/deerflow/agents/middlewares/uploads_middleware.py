@@ -9,7 +9,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
-from deerflow.config.paths import Paths, get_paths
+from talonflow.config.paths import Paths, get_paths
 
 logger = logging.getLogger(__name__)
 

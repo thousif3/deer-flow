@@ -25,10 +25,10 @@ except ImportError:  # pragma: no cover - Windows fallback
     fcntl = None  # type: ignore[assignment]
     import msvcrt
 
-from deerflow.config import get_app_config
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from talonflow.config import get_app_config
+from talonflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
+from talonflow.sandbox.sandbox import Sandbox
+from talonflow.sandbox.sandbox_provider import SandboxProvider
 
 from .aio_sandbox import AioSandbox
 from .backend import SandboxBackend, wait_for_sandbox_ready
@@ -74,7 +74,7 @@ class AioSandboxProvider(SandboxProvider):
         - Remote/K8s mode (connect to pre-existing sandbox URL)
 
     Configuration options in config.yaml under sandbox:
-        use: deerflow.community.aio_sandbox:AioSandboxProvider
+        use: talonflow.community.aio_sandbox:AioSandboxProvider
         image: <container image>
         port: 8080                      # Base port for local containers
         container_prefix: talon-flow-sandbox

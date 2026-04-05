@@ -4,8 +4,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from deerflow.sandbox.local.list_dir import list_dir
-from deerflow.sandbox.sandbox import Sandbox
+from talonflow.sandbox.local.list_dir import list_dir
+from talonflow.sandbox.sandbox import Sandbox
 
 
 class LocalSandbox(Sandbox):

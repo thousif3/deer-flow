@@ -1,6 +1,6 @@
 ---
 name: claude-to-deerflow
-description: "Interact with TalonFlow AI agent platform via its HTTP API. Use this skill when the user wants to send messages or questions to TalonFlow for research/analysis, start a TalonFlow conversation thread, check TalonFlow status or health, list available models/skills/agents in TalonFlow, manage TalonFlow memory, upload files to TalonFlow threads, or delegate complex research tasks to TalonFlow. Also use when the user mentions deerflow, deer flow, or wants to run a deep research task that TalonFlow can handle."
+description: "Interact with TalonFlow AI agent platform via its HTTP API. Use this skill when the user wants to send messages or questions to TalonFlow for research/analysis, start a TalonFlow conversation thread, check TalonFlow status or health, list available models/skills/agents in TalonFlow, manage TalonFlow memory, upload files to TalonFlow threads, or delegate complex research tasks to TalonFlow. Also use when the user mentions talonflow. deer flow, or wants to run a deep research task that TalonFlow can handle."
 ---
 
 # TalonFlow Skill
@@ -14,8 +14,8 @@ TalonFlow exposes two API surfaces behind an Nginx reverse proxy:
 
 | Service        | Direct Port | Via Proxy                        | Purpose                          |
 |----------------|-------------|----------------------------------|----------------------------------|
-| Gateway API    | 8001        | `$DEERFLOW_GATEWAY_URL`          | REST endpoints (models, skills, memory, uploads) |
-| LangGraph API  | 2024        | `$DEERFLOW_LANGGRAPH_URL`        | Agent threads, runs, streaming   |
+| Gateway API    | 8001        | `$TALONFLOW_GATEWAY_URL`          | REST endpoints (models, skills, memory, uploads) |
+| LangGraph API  | 2024        | `$TALONFLOW_LANGGRAPH_URL`        | Agent threads, runs, streaming   |
 
 ## Environment Variables
 
@@ -23,17 +23,17 @@ All URLs are configurable via environment variables. **Read these env vars befor
 
 | Variable                | Default                                  | Description                        |
 |-------------------------|------------------------------------------|------------------------------------|
-| `DEERFLOW_URL`          | `http://localhost:2026`                  | Unified proxy base URL             |
-| `DEERFLOW_GATEWAY_URL`  | `${DEERFLOW_URL}`                        | Gateway API base (models, skills, memory, uploads) |
-| `DEERFLOW_LANGGRAPH_URL`| `${DEERFLOW_URL}/api/langgraph`          | LangGraph API base (threads, runs) |
+| `TALONFLOW_URL`          | `http://localhost:2026`                  | Unified proxy base URL             |
+| `TALONFLOW_GATEWAY_URL`  | `${TALONFLOW_URL}`                        | Gateway API base (models, skills, memory, uploads) |
+| `TALONFLOW_LANGGRAPH_URL`| `${TALONFLOW_URL}/api/langgraph`          | LangGraph API base (threads, runs) |
 
 When making curl calls, always resolve the URL like this:
 
 ```bash
 # Resolve base URLs from env (do this FIRST before any API call)
-DEERFLOW_URL="${DEERFLOW_URL:-http://localhost:2026}"
-DEERFLOW_GATEWAY_URL="${DEERFLOW_GATEWAY_URL:-$DEERFLOW_URL}"
-DEERFLOW_LANGGRAPH_URL="${DEERFLOW_LANGGRAPH_URL:-$DEERFLOW_URL/api/langgraph}"
+TALONFLOW_URL="${TALONFLOW_URL:-http://localhost:2026}"
+TALONFLOW_GATEWAY_URL="${TALONFLOW_GATEWAY_URL:-$TALONFLOW_URL}"
+TALONFLOW_LANGGRAPH_URL="${TALONFLOW_LANGGRAPH_URL:-$TALONFLOW_URL/api/langgraph}"
 ```
 
 ## Available Operations
@@ -43,7 +43,7 @@ DEERFLOW_LANGGRAPH_URL="${DEERFLOW_LANGGRAPH_URL:-$DEERFLOW_URL/api/langgraph}"
 Verify TalonFlow is running:
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/health"
+curl -s "$TALONFLOW_GATEWAY_URL/health"
 ```
 
 ### 2. Send a Message (Streaming)
@@ -53,7 +53,7 @@ This is the primary operation. It creates a thread and streams the agent's respo
 **Step 1: Create a thread**
 
 ```bash
-curl -s -X POST "$DEERFLOW_LANGGRAPH_URL/threads" \
+curl -s -X POST "$TALONFLOW_LANGGRAPH_URL/threads" \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
@@ -63,7 +63,7 @@ Response: `{"thread_id": "<uuid>", ...}`
 **Step 2: Stream a run**
 
 ```bash
-curl -s -N -X POST "$DEERFLOW_LANGGRAPH_URL/threads/<thread_id>/runs/stream" \
+curl -s -N -X POST "$TALONFLOW_LANGGRAPH_URL/threads/<thread_id>/runs/stream" \
   -H "Content-Type: application/json" \
   -d '{
     "assistant_id": "lead_agent",
@@ -115,7 +115,7 @@ with the new message.
 ### 4. List Models
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/api/models"
+curl -s "$TALONFLOW_GATEWAY_URL/api/models"
 ```
 
 Returns: `{"models": [{"name": "...", "provider": "...", ...}, ...]}`
@@ -123,7 +123,7 @@ Returns: `{"models": [{"name": "...", "provider": "...", ...}, ...]}`
 ### 5. List Skills
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/api/skills"
+curl -s "$TALONFLOW_GATEWAY_URL/api/skills"
 ```
 
 Returns: `{"skills": [{"name": "...", "enabled": true, ...}, ...]}`
@@ -131,7 +131,7 @@ Returns: `{"skills": [{"name": "...", "enabled": true, ...}, ...]}`
 ### 6. Enable/Disable a Skill
 
 ```bash
-curl -s -X PUT "$DEERFLOW_GATEWAY_URL/api/skills/<skill_name>" \
+curl -s -X PUT "$TALONFLOW_GATEWAY_URL/api/skills/<skill_name>" \
   -H "Content-Type: application/json" \
   -d '{"enabled": true}'
 ```
@@ -139,7 +139,7 @@ curl -s -X PUT "$DEERFLOW_GATEWAY_URL/api/skills/<skill_name>" \
 ### 7. List Agents
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/api/agents"
+curl -s "$TALONFLOW_GATEWAY_URL/api/agents"
 ```
 
 Returns: `{"agents": [{"name": "...", ...}, ...]}`
@@ -147,7 +147,7 @@ Returns: `{"agents": [{"name": "...", ...}, ...]}`
 ### 8. Get Memory
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/api/memory"
+curl -s "$TALONFLOW_GATEWAY_URL/api/memory"
 ```
 
 Returns user context, facts, and conversation history summaries.
@@ -155,7 +155,7 @@ Returns user context, facts, and conversation history summaries.
 ### 9. Upload Files to a Thread
 
 ```bash
-curl -s -X POST "$DEERFLOW_GATEWAY_URL/api/threads/<thread_id>/uploads" \
+curl -s -X POST "$TALONFLOW_GATEWAY_URL/api/threads/<thread_id>/uploads" \
   -F "files=@/path/to/file.pdf"
 ```
 
@@ -164,19 +164,19 @@ Supports PDF, PPTX, XLSX, DOCX — automatically converts to Markdown.
 ### 10. List Uploaded Files
 
 ```bash
-curl -s "$DEERFLOW_GATEWAY_URL/api/threads/<thread_id>/uploads/list"
+curl -s "$TALONFLOW_GATEWAY_URL/api/threads/<thread_id>/uploads/list"
 ```
 
 ### 11. Get Thread History
 
 ```bash
-curl -s "$DEERFLOW_LANGGRAPH_URL/threads/<thread_id>/history"
+curl -s "$TALONFLOW_LANGGRAPH_URL/threads/<thread_id>/history"
 ```
 
 ### 12. List Threads
 
 ```bash
-curl -s -X POST "$DEERFLOW_LANGGRAPH_URL/threads/search" \
+curl -s -X POST "$TALONFLOW_LANGGRAPH_URL/threads/search" \
   -H "Content-Type: application/json" \
   -d '{"limit": 20, "sort_by": "updated_at", "sort_order": "desc"}'
 ```
@@ -186,7 +186,7 @@ curl -s -X POST "$DEERFLOW_LANGGRAPH_URL/threads/search" \
 For sending messages and collecting the full response, use the helper script:
 
 ```bash
-bash /path/to/skills/claude-to-deerflow/scripts/chat.sh "Your question here"
+bash /path/to/skills/claude-to-talonflow.scripts/chat.sh "Your question here"
 ```
 
 See `scripts/chat.sh` for the implementation. The script:

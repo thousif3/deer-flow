@@ -72,9 +72,9 @@ def _build_runtime_middlewares(
     lazy_init: bool = True,
 ) -> list[AgentMiddleware]:
     """Build shared base middlewares for agent execution."""
-    from deerflow.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
-    from deerflow.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
-    from deerflow.sandbox.middleware import SandboxMiddleware
+    from talonflow.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
+    from talonflow.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
+    from talonflow.sandbox.middleware import SandboxMiddleware
 
     middlewares: list[AgentMiddleware] = [
         ThreadDataMiddleware(lazy_init=lazy_init),
@@ -82,26 +82,26 @@ def _build_runtime_middlewares(
     ]
 
     if include_uploads:
-        from deerflow.agents.middlewares.uploads_middleware import UploadsMiddleware
+        from talonflow.agents.middlewares.uploads_middleware import UploadsMiddleware
 
         middlewares.insert(1, UploadsMiddleware())
 
     if include_dangling_tool_call_patch:
-        from deerflow.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
+        from talonflow.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
 
         middlewares.append(DanglingToolCallMiddleware())
 
     middlewares.append(LLMErrorHandlingMiddleware())
 
     # Guardrail middleware (if configured)
-    from deerflow.config.guardrails_config import get_guardrails_config
+    from talonflow.config.guardrails_config import get_guardrails_config
 
     guardrails_config = get_guardrails_config()
     if guardrails_config.enabled and guardrails_config.provider:
         import inspect
 
-        from deerflow.guardrails.middleware import GuardrailMiddleware
-        from deerflow.reflection import resolve_variable
+        from talonflow.guardrails.middleware import GuardrailMiddleware
+        from talonflow.reflection import resolve_variable
 
         provider_cls = resolve_variable(guardrails_config.provider.use)
         provider_kwargs = dict(guardrails_config.provider.config) if guardrails_config.provider.config else {}
@@ -112,13 +112,13 @@ def _build_runtime_middlewares(
             try:
                 sig = inspect.signature(provider_cls.__init__)
                 if "framework" in sig.parameters or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()):
-                    provider_kwargs["framework"] = "deerflow"
+                    provider_kwargs["framework"] = "talonflow.
             except (ValueError, TypeError):
                 pass
         provider = provider_cls(**provider_kwargs)
         middlewares.append(GuardrailMiddleware(provider, fail_closed=guardrails_config.fail_closed, passport=guardrails_config.passport))
 
-    from deerflow.agents.middlewares.sandbox_audit_middleware import SandboxAuditMiddleware
+    from talonflow.agents.middlewares.sandbox_audit_middleware import SandboxAuditMiddleware
 
     middlewares.append(SandboxAuditMiddleware())
     middlewares.append(ToolErrorHandlingMiddleware())

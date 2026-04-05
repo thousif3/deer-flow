@@ -1,7 +1,7 @@
 from langchain.tools import tool
 
-from deerflow.config import get_app_config
-from deerflow.utils.readability import ReadabilityExtractor
+from talonflow.config import get_app_config
+from talonflow.utils.readability import ReadabilityExtractor
 
 from .infoquest_client import InfoQuestClient
 

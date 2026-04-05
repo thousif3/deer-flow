@@ -903,16 +903,16 @@ a:hover {
   margin: 0;
 }
 
-.deerflow-branding {
+.talonflow.branding {
   opacity: 0.7;
   transition: opacity var(--transition-fast);
 }
 
-.deerflow-branding:hover {
+.talonflow.branding:hover {
   opacity: 1;
 }
 
-.deerflow-link {
+.talonflow.link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -920,11 +920,11 @@ a:hover {
   font-size: 0.875rem;
 }
 
-.deerflow-icon {
+.talonflow.icon {
   font-size: 0.875rem;
 }
 
-.deerflow-text {
+.talonflow.text {
   font-family: var(--font-sans);
 }
 

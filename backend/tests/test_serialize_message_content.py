@@ -8,7 +8,7 @@ See: https://github.com/bytedance/talon-flow/issues/1149
 
 from langchain_core.messages import ToolMessage
 
-from deerflow.client import TalonFlowClient
+from talonflow.client import TalonFlowClient
 
 # ---------------------------------------------------------------------------
 # _serialize_message

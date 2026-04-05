@@ -13,10 +13,10 @@ function SkeletonBar({
 }) {
   return (
     <div
-      className={`animate-skeleton-entrance fill-mode-[forwards] overflow-hidden rounded-md ${originRight ? "origin-[right]" : "origin-[left]"} ${className ?? ""}`}
+      className={`animate-skeleton-entrance fill-mode-[forwards] overflow-hidden rounded-none ${originRight ? "origin-[right]" : "origin-[left]"} ${className ?? ""}`}
       style={{ opacity: 0, ...style }}
     >
-      <Skeleton className="h-full w-full rounded-md" />
+      <Skeleton className="h-full w-full rounded-none" />
     </div>
   );
 }

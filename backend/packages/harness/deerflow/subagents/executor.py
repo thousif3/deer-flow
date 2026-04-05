@@ -16,9 +16,9 @@ from langchain.tools import BaseTool
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 
-from deerflow.agents.thread_state import SandboxState, ThreadDataState, ThreadState
-from deerflow.models import create_chat_model
-from deerflow.subagents.config import SubagentConfig
+from talonflow.agents.thread_state import SandboxState, ThreadDataState, ThreadState
+from talonflow.models import create_chat_model
+from talonflow.subagents.config import SubagentConfig
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ class SubagentExecutor:
         model_name = _get_model_name(self.config, self.parent_model)
         model = create_chat_model(name=model_name, thinking_enabled=False)
 
-        from deerflow.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
+        from talonflow.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
 
         # Reuse shared middleware composition with lead agent.
         middlewares = build_subagent_runtime_middlewares(lazy_init=True)

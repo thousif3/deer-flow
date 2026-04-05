@@ -8,13 +8,13 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from deerflow.agents.memory.prompt import (
+from talonflow.agents.memory.prompt import (
     MEMORY_UPDATE_PROMPT,
     format_conversation_for_update,
 )
-from deerflow.agents.memory.storage import create_empty_memory, get_memory_storage
-from deerflow.config.memory_config import get_memory_config
-from deerflow.models import create_chat_model
+from talonflow.agents.memory.storage import create_empty_memory, get_memory_storage
+from talonflow.config.memory_config import get_memory_config
+from talonflow.models import create_chat_model
 
 logger = logging.getLogger(__name__)
 

@@ -99,7 +99,7 @@ export function WorkspaceNavMenu() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <a
-                    href="https://deerflow.tech/"
+                    href="https://talonflow.dev/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -129,7 +129,7 @@ export function WorkspaceNavMenu() {
                       {t.workspace.reportIssue}
                     </DropdownMenuItem>
                   </a>
-                  <a href="mailto:support@deerflow.tech">
+                  <a href="mailto:support@talonflow.dev">
                     <DropdownMenuItem>
                       <MailIcon />
                       {t.workspace.contactUs}

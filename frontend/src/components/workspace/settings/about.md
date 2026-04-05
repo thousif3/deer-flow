@@ -14,11 +14,11 @@ Explore TalonFlow on GitHub: [github.com/bytedance/talon-flow](https://github.co
 
 ## 🌐 Official Website
 
-Visit the official website of TalonFlow: [deerflow.tech](https://deerflow.tech/)
+Visit the official website of TalonFlow: [talonflow.dev](https://talonflow.dev/)
 
 ## 📧 Support
 
-If you have any questions or need help, please contact us at [support@deerflow.tech](mailto:support@deerflow.tech).
+If you have any questions or need help, please contact us at [support@talonflow.dev](mailto:support@talonflow.dev).
 
 ---
 

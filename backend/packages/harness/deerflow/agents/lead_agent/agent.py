@@ -4,21 +4,21 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import AgentMiddleware, SummarizationMiddleware
 from langchain_core.runnables import RunnableConfig
 
-from deerflow.agents.lead_agent.prompt import apply_prompt_template
-from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
-from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
-from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
-from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
-from deerflow.agents.middlewares.title_middleware import TitleMiddleware
-from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
-from deerflow.agents.middlewares.token_usage_middleware import TokenUsageMiddleware
-from deerflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
-from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
-from deerflow.agents.thread_state import ThreadState
-from deerflow.config.agents_config import load_agent_config
-from deerflow.config.app_config import get_app_config
-from deerflow.config.summarization_config import get_summarization_config
-from deerflow.models import create_chat_model
+from talonflow.agents.lead_agent.prompt import apply_prompt_template
+from talonflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from talonflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+from talonflow.agents.middlewares.memory_middleware import MemoryMiddleware
+from talonflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
+from talonflow.agents.middlewares.title_middleware import TitleMiddleware
+from talonflow.agents.middlewares.todo_middleware import TodoMiddleware
+from talonflow.agents.middlewares.token_usage_middleware import TokenUsageMiddleware
+from talonflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
+from talonflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
+from talonflow.agents.thread_state import ThreadState
+from talonflow.config.agents_config import load_agent_config
+from talonflow.config.app_config import get_app_config
+from talonflow.config.summarization_config import get_summarization_config
+from talonflow.models import create_chat_model
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +248,7 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
 
     # Add DeferredToolFilterMiddleware to hide deferred tool schemas from model binding
     if app_config.tool_search.enabled:
-        from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+        from talonflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
 
         middlewares.append(DeferredToolFilterMiddleware())
 
@@ -272,8 +272,8 @@ def _build_middlewares(config: RunnableConfig, model_name: str | None, agent_nam
 
 def make_lead_agent(config: RunnableConfig):
     # Lazy import to avoid circular dependency
-    from deerflow.tools import get_available_tools
-    from deerflow.tools.builtins import setup_agent
+    from talonflow.tools import get_available_tools
+    from talonflow.tools.builtins import setup_agent
 
     cfg = config.get("configurable", {})
 

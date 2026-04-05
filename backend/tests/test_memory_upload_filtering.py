@@ -9,8 +9,8 @@ persisting in long-term memory:
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-from deerflow.agents.memory.updater import _strip_upload_mentions_from_memory
-from deerflow.agents.middlewares.memory_middleware import _filter_messages_for_memory, detect_correction
+from talonflow.agents.memory.updater import _strip_upload_mentions_from_memory
+from talonflow.agents.middlewares.memory_middleware import _filter_messages_for_memory, detect_correction
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -236,10 +236,10 @@ class TestStripUploadMentionsFromMemory:
 
     def test_uploading_a_test_file_removed(self):
         """'uploading a test file' (with intervening words) must be caught."""
-        mem = self._make_memory("User conducted a hands-on test by uploading a test file titled 'test_deerflow_memory_bug.txt'. User is also learning Python.")
+        mem = self._make_memory("User conducted a hands-on test by uploading a test file titled 'test_talonflow.memory_bug.txt'. User is also learning Python.")
         result = _strip_upload_mentions_from_memory(mem)
         summary = result["user"]["topOfMind"]["summary"]
-        assert "test_deerflow_memory_bug.txt" not in summary
+        assert "test_talonflow.memory_bug.txt" not in summary
         assert "uploading a test file" not in summary
 
     # --- facts ---

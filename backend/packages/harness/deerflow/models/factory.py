@@ -2,9 +2,9 @@ import logging
 
 from langchain.chat_models import BaseChatModel
 
-from deerflow.config import get_app_config
-from deerflow.reflection import resolve_class
-from deerflow.tracing import build_tracing_callbacks
+from talonflow.config import get_app_config
+from talonflow.reflection import resolve_class
+from talonflow.tracing import build_tracing_callbacks
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
         del kwargs["reasoning_effort"]
 
     # For Codex Responses API models: map thinking mode to reasoning_effort
-    from deerflow.models.openai_codex_provider import CodexChatModel
+    from talonflow.models.openai_codex_provider import CodexChatModel
 
     if issubclass(model_class, CodexChatModel):
         # The ChatGPT Codex endpoint currently rejects max_tokens/max_output_tokens.

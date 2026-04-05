@@ -18,7 +18,7 @@ from fastapi import HTTPException, Request
 from langchain_core.messages import HumanMessage
 
 from app.gateway.deps import get_checkpointer, get_run_manager, get_store, get_stream_bridge
-from deerflow.runtime import (
+from talonflow.runtime import (
     END_SENTINEL,
     HEARTBEAT_SENTINEL,
     ConflictError,
@@ -105,7 +105,7 @@ def resolve_agent_factory(assistant_id: str | None):
     ``assistant_id`` values therefore map to the same factory; the routing
     happens inside ``make_lead_agent`` when it reads ``cfg["agent_name"]``.
     """
-    from deerflow.agents.lead_agent.agent import make_lead_agent
+    from talonflow.agents.lead_agent.agent import make_lead_agent
 
     return make_lead_agent
 

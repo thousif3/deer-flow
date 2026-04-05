@@ -4,7 +4,7 @@ Provides direct programmatic access to TalonFlow's agent capabilities
 without requiring LangGraph Server or Gateway API processes.
 
 Usage:
-    from deerflow.client import TalonFlowClient
+    from talonflow.client import TalonFlowClient
 
     client = TalonFlowClient()
     response = client.chat("Analyze this paper for me", thread_id="my-thread")
@@ -32,16 +32,16 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
-from deerflow.agents.lead_agent.agent import _build_middlewares
-from deerflow.agents.lead_agent.prompt import apply_prompt_template
-from deerflow.agents.thread_state import ThreadState
-from deerflow.config.agents_config import AGENT_NAME_PATTERN
-from deerflow.config.app_config import get_app_config, reload_app_config
-from deerflow.config.extensions_config import ExtensionsConfig, SkillStateConfig, get_extensions_config, reload_extensions_config
-from deerflow.config.paths import get_paths
-from deerflow.models import create_chat_model
-from deerflow.skills.installer import install_skill_from_archive
-from deerflow.uploads.manager import (
+from talonflow.agents.lead_agent.agent import _build_middlewares
+from talonflow.agents.lead_agent.prompt import apply_prompt_template
+from talonflow.agents.thread_state import ThreadState
+from talonflow.config.agents_config import AGENT_NAME_PATTERN
+from talonflow.config.app_config import get_app_config, reload_app_config
+from talonflow.config.extensions_config import ExtensionsConfig, SkillStateConfig, get_extensions_config, reload_extensions_config
+from talonflow.config.paths import get_paths
+from talonflow.models import create_chat_model
+from talonflow.skills.installer import install_skill_from_archive
+from talonflow.uploads.manager import (
     claim_unique_filename,
     delete_file_safe,
     enrich_file_listing,
@@ -91,7 +91,7 @@ class TalonFlowClient:
 
     Example::
 
-        from deerflow.client import TalonFlowClient
+        from talonflow.client import TalonFlowClient
 
         client = TalonFlowClient()
 
@@ -231,7 +231,7 @@ class TalonFlowClient:
         }
         checkpointer = self._checkpointer
         if checkpointer is None:
-            from deerflow.agents.checkpointer import get_checkpointer
+            from talonflow.agents.checkpointer import get_checkpointer
 
             checkpointer = get_checkpointer()
         if checkpointer is not None:
@@ -244,7 +244,7 @@ class TalonFlowClient:
     @staticmethod
     def _get_tools(*, model_name: str | None, subagent_enabled: bool):
         """Lazy import to avoid circular dependency at module level."""
-        from deerflow.tools import get_available_tools
+        from talonflow.tools import get_available_tools
 
         return get_available_tools(model_name=model_name, subagent_enabled=subagent_enabled)
 
@@ -482,7 +482,7 @@ class TalonFlowClient:
             Dict with "skills" key containing list of skill info dicts,
             matching the Gateway API ``SkillsListResponse`` schema.
         """
-        from deerflow.skills.loader import load_skills
+        from talonflow.skills.loader import load_skills
 
         return {
             "skills": [
@@ -503,19 +503,19 @@ class TalonFlowClient:
         Returns:
             Memory data dict (see src/agents/memory/updater.py for structure).
         """
-        from deerflow.agents.memory.updater import get_memory_data
+        from talonflow.agents.memory.updater import get_memory_data
 
         return get_memory_data()
 
     def export_memory(self) -> dict:
         """Export current memory data for backup or transfer."""
-        from deerflow.agents.memory.updater import get_memory_data
+        from talonflow.agents.memory.updater import get_memory_data
 
         return get_memory_data()
 
     def import_memory(self, memory_data: dict) -> dict:
         """Import and persist full memory data."""
-        from deerflow.agents.memory.updater import import_memory_data
+        from talonflow.agents.memory.updater import import_memory_data
 
         return import_memory_data(memory_data)
 
@@ -602,7 +602,7 @@ class TalonFlowClient:
         Returns:
             Skill info dict, or None if not found.
         """
-        from deerflow.skills.loader import load_skills
+        from talonflow.skills.loader import load_skills
 
         skill = next((s for s in load_skills(enabled_only=False) if s.name == name), None)
         if skill is None:
@@ -629,7 +629,7 @@ class TalonFlowClient:
             ValueError: If the skill is not found.
             OSError: If the config file cannot be written.
         """
-        from deerflow.skills.loader import load_skills
+        from talonflow.skills.loader import load_skills
 
         skills = load_skills(enabled_only=False)
         skill = next((s for s in skills if s.name == name), None)
@@ -690,25 +690,25 @@ class TalonFlowClient:
         Returns:
             The reloaded memory data dict.
         """
-        from deerflow.agents.memory.updater import reload_memory_data
+        from talonflow.agents.memory.updater import reload_memory_data
 
         return reload_memory_data()
 
     def clear_memory(self) -> dict:
         """Clear all persisted memory data."""
-        from deerflow.agents.memory.updater import clear_memory_data
+        from talonflow.agents.memory.updater import clear_memory_data
 
         return clear_memory_data()
 
     def create_memory_fact(self, content: str, category: str = "context", confidence: float = 0.5) -> dict:
         """Create a single fact manually."""
-        from deerflow.agents.memory.updater import create_memory_fact
+        from talonflow.agents.memory.updater import create_memory_fact
 
         return create_memory_fact(content=content, category=category, confidence=confidence)
 
     def delete_memory_fact(self, fact_id: str) -> dict:
         """Delete a single fact from memory by fact id."""
-        from deerflow.agents.memory.updater import delete_memory_fact
+        from talonflow.agents.memory.updater import delete_memory_fact
 
         return delete_memory_fact(fact_id)
 
@@ -720,7 +720,7 @@ class TalonFlowClient:
         confidence: float | None = None,
     ) -> dict:
         """Update a single fact manually, preserving omitted fields."""
-        from deerflow.agents.memory.updater import update_memory_fact
+        from talonflow.agents.memory.updater import update_memory_fact
 
         return update_memory_fact(
             fact_id=fact_id,
@@ -735,7 +735,7 @@ class TalonFlowClient:
         Returns:
             Memory config dict.
         """
-        from deerflow.config.memory_config import get_memory_config
+        from talonflow.config.memory_config import get_memory_config
 
         config = get_memory_config()
         return {
@@ -780,7 +780,7 @@ class TalonFlowClient:
             FileNotFoundError: If any file does not exist.
             ValueError: If any supplied path exists but is not a regular file.
         """
-        from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
+        from talonflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
 
         # Validate all files upfront to avoid partial uploads.
         resolved_files = []
@@ -891,7 +891,7 @@ class TalonFlowClient:
             FileNotFoundError: If the file does not exist.
             PermissionError: If path traversal is detected.
         """
-        from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS
+        from talonflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS
 
         uploads_dir = get_uploads_dir(thread_id)
         return delete_file_safe(uploads_dir, filename, convertible_extensions=CONVERTIBLE_EXTENSIONS)
@@ -918,7 +918,7 @@ class TalonFlowClient:
             actual = get_paths().resolve_virtual_path(thread_id, path)
         except ValueError as exc:
             if "traversal" in str(exc):
-                from deerflow.uploads.manager import PathTraversalError
+                from talonflow.uploads.manager import PathTraversalError
 
                 raise PathTraversalError("Path traversal detected") from exc
             raise

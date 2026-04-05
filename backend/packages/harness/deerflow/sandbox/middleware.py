@@ -5,8 +5,8 @@ from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import SandboxState, ThreadDataState
-from deerflow.sandbox import get_sandbox_provider
+from talonflow.agents.thread_state import SandboxState, ThreadDataState
+from talonflow.sandbox import get_sandbox_provider
 
 logger = logging.getLogger(__name__)
 

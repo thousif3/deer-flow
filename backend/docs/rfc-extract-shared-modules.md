@@ -2,7 +2,7 @@
 
 ## 1. Problem
 
-Gateway (`app/gateway/routers/skills.py`, `uploads.py`) and Client (`deerflow/client.py`) each independently implement the same business logic:
+Gateway (`app/gateway/routers/skills.py`, `uploads.py`) and Client (`talonflow.client.py`) each independently implement the same business logic:
 
 ### Skill Installation
 
@@ -36,11 +36,11 @@ Gateway (`app/gateway/routers/skills.py`, `uploads.py`) and Client (`deerflow/cl
 
 ```
 app.gateway.routers.skills  ──┐
-app.gateway.routers.uploads ──┤── calls ──→  deerflow.skills.installer
-deerflow.client             ──┘              deerflow.uploads.manager
+app.gateway.routers.uploads ──┤── calls ──→  talonflow.skills.installer
+talonflow.client             ──┘              talonflow.uploads.manager
 ```
 
-- Shared modules live in the harness layer (`deerflow.*`), pure business logic, no FastAPI dependency
+- Shared modules live in the harness layer (`talonflow.*`), pure business logic, no FastAPI dependency
 - Gateway handles HTTP adaptation (`UploadFile` → bytes, exceptions → `HTTPException`)
 - Client handles local adaptation (`Path` → copy, exceptions → Python exceptions)
 - Satisfies `test_harness_boundary.py` constraint: harness never imports app
@@ -58,7 +58,7 @@ Replaces stringly-typed routing (`"already exists" in str(e)`) with typed except
 
 ## 3. New Modules
 
-### 3.1 `deerflow.skills.installer`
+### 3.1 `talonflow.skills.installer`
 
 ```python
 # Safety checks
@@ -84,7 +84,7 @@ install_skill_from_archive(zip_path, *, skills_root=None) -> dict
 class SkillAlreadyExistsError(ValueError)
 ```
 
-### 3.2 `deerflow.uploads.manager`
+### 3.2 `talonflow.uploads.manager`
 
 ```python
 # Directory management
@@ -132,7 +132,7 @@ enrich_file_listing(result, thread_id) -> dict     # Adds URLs, stringifies size
 
 ### 4.2 Client Slimming
 
-**`deerflow/client.py`**:
+**`talonflow.client.py`**:
 - Remove `_get_uploads_dir` static method
 - Remove ~50 lines of inline zip handling in `install_skill`
 - `install_skill` delegates to `install_skill_from_archive()`

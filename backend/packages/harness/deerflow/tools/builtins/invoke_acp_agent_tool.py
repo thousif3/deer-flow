@@ -32,7 +32,7 @@ def _get_work_dir(thread_id: str | None) -> str:
     Returns:
         An absolute physical filesystem path to use as the working directory.
     """
-    from deerflow.config.paths import get_paths
+    from talonflow.config.paths import get_paths
 
     paths = get_paths()
     if thread_id:
@@ -51,8 +51,8 @@ def _get_work_dir(thread_id: str | None) -> str:
 
 def _build_mcp_servers() -> dict[str, dict[str, Any]]:
     """Build ACP ``mcpServers`` config from TalonFlow's enabled MCP servers."""
-    from deerflow.config.extensions_config import ExtensionsConfig
-    from deerflow.mcp.client import build_servers_config
+    from talonflow.config.extensions_config import ExtensionsConfig
+    from talonflow.mcp.client import build_servers_config
 
     return build_servers_config(ExtensionsConfig.from_file())
 
@@ -186,7 +186,7 @@ def build_invoke_acp_agent_tool(agents: dict) -> BaseTool:
                 await conn.initialize(
                     protocol_version=PROTOCOL_VERSION,
                     client_capabilities=ClientCapabilities(),
-                    client_info=Implementation(name="deerflow", title="TalonFlow", version="0.1.0"),
+                    client_info=Implementation(name="talonflow., title="TalonFlow", version="0.1.0"),
                 )
                 session_kwargs: dict[str, Any] = {"cwd": physical_cwd, "mcp_servers": mcp_servers}
                 if agent_config.model:

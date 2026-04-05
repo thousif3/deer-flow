@@ -9,7 +9,7 @@ export function Header() {
     <header className="container-md fixed top-0 right-0 left-0 z-20 mx-auto flex h-16 items-center justify-between backdrop-blur-xs">
       <div className="flex items-center gap-2">
         <a
-          href="https://github.com/bytedance/talon-flow"
+          href="https://github.com/thousif3/talon-flow"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -31,7 +31,7 @@ export function Header() {
           className="group relative z-10"
         >
           <a
-            href="https://github.com/bytedance/talon-flow"
+            href="https://github.com/thousif3/talon-flow"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -52,7 +52,7 @@ async function StarCounter() {
 
   try {
     const response = await fetch(
-      "https://api.github.com/repos/bytedance/talon-flow",
+      "https://api.github.com/repos/thousif3/talon-flow",
       {
         headers: env.GITHUB_OAUTH_TOKEN
           ? {

@@ -124,7 +124,7 @@ detect_sandbox_mode() {
         }
     ' "$TALON_FLOW_CONFIG_PATH")
 
-    if [[ "$sandbox_use" == *"deerflow.community.aio_sandbox:AioSandboxProvider"* ]]; then
+    if [[ "$sandbox_use" == *"talonflow.community.aio_sandbox:AioSandboxProvider"* ]]; then
         if [ -n "$provisioner_url" ]; then
             echo "provisioner"
         else

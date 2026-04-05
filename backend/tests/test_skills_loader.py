@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from deerflow.skills.loader import get_skills_root_path, load_skills
+from talonflow.skills.loader import get_skills_root_path, load_skills
 
 
 def _write_skill(skill_dir: Path, name: str, description: str) -> None:

@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
 from app.gateway.routers import threads
-from deerflow.config.paths import Paths
+from talonflow.config.paths import Paths
 
 
 def test_delete_thread_data_removes_thread_directory(tmp_path):

@@ -1,14 +1,14 @@
 """Sync Store factory.
 
 Provides a **sync singleton** and a **sync context manager** for CLI tools
-and the embedded :class:`~deerflow.client.TalonFlowClient`.
+and the embedded :class:`~talonflow.client.TalonFlowClient`.
 
 The backend mirrors the configured checkpointer so that both always use the
 same persistence technology.  Supported backends: memory, sqlite, postgres.
 
 Usage::
 
-    from deerflow.runtime.store.provider import get_store, store_context
+    from talonflow.runtime.store.provider import get_store, store_context
 
     # Singleton — reused across calls, closed on process exit
     store = get_store()
@@ -26,8 +26,8 @@ from collections.abc import Iterator
 
 from langgraph.store.base import BaseStore
 
-from deerflow.config.app_config import get_app_config
-from deerflow.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
+from talonflow.config.app_config import get_app_config
+from talonflow.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def _sync_store_cm(config) -> Iterator[BaseStore]:
     """Context manager that creates and tears down a sync Store.
 
     The ``config`` argument is a
-    :class:`~deerflow.config.checkpointer_config.CheckpointerConfig` instance —
+    :class:`~talonflow.config.checkpointer_config.CheckpointerConfig` instance —
     the same object used by the checkpointer factory.
     """
     if config.type == "memory":
@@ -117,8 +117,8 @@ def get_store() -> BaseStore:
 
     # Lazily load app config, mirroring the checkpointer singleton pattern so
     # that tests that set the global checkpointer config explicitly remain isolated.
-    from deerflow.config.app_config import _app_config
-    from deerflow.config.checkpointer_config import get_checkpointer_config
+    from talonflow.config.app_config import _app_config
+    from talonflow.config.checkpointer_config import get_checkpointer_config
 
     config = get_checkpointer_config()
 

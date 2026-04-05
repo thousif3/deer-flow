@@ -19,8 +19,8 @@ import asyncio
 import logging
 from typing import Any, Literal
 
-from deerflow.runtime.serialization import serialize
-from deerflow.runtime.stream_bridge import StreamBridge
+from talonflow.runtime.serialization import serialize
+from talonflow.runtime.stream_bridge import StreamBridge
 
 from .manager import RunManager, RunRecord
 from .schemas import RunStatus

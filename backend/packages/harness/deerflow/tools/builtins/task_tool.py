@@ -10,11 +10,11 @@ from langchain.tools import InjectedToolCallId, ToolRuntime, tool
 from langgraph.config import get_stream_writer
 from langgraph.typing import ContextT
 
-from deerflow.agents.lead_agent.prompt import get_skills_prompt_section
-from deerflow.agents.thread_state import ThreadState
-from deerflow.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE, is_host_bash_allowed
-from deerflow.subagents import SubagentExecutor, get_available_subagent_names, get_subagent_config
-from deerflow.subagents.executor import SubagentStatus, cleanup_background_task, get_background_task_result
+from talonflow.agents.lead_agent.prompt import get_skills_prompt_section
+from talonflow.agents.thread_state import ThreadState
+from talonflow.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE, is_host_bash_allowed
+from talonflow.subagents import SubagentExecutor, get_available_subagent_names, get_subagent_config
+from talonflow.subagents.executor import SubagentStatus, cleanup_background_task, get_background_task_result
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ async def task_tool(
 
     # Get available tools (excluding task tool to prevent nesting)
     # Lazy import to avoid circular dependency
-    from deerflow.tools import get_available_tools
+    from talonflow.tools import get_available_tools
 
     # Subagents should not have subagent tools enabled (prevent recursive nesting)
     tools = get_available_tools(model_name=parent_model, subagent_enabled=False)

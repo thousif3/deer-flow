@@ -6,14 +6,14 @@ from pathlib import Path
 
 import yaml
 
-from deerflow.config.app_config import get_app_config, reset_app_config
+from talonflow.config.app_config import get_app_config, reset_app_config
 
 
 def _write_config(path: Path, *, model_name: str, supports_thinking: bool) -> None:
     path.write_text(
         yaml.safe_dump(
             {
-                "sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"},
+                "sandbox": {"use": "talonflow.sandbox.local:LocalSandboxProvider"},
                 "models": [
                     {
                         "name": model_name,

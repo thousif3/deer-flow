@@ -8,8 +8,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
-const DEERFLOW_URL =
-  process.env.NEXT_PUBLIC_DEERFLOW_URL ?? "http://localhost:8000";
+const TALONFLOW_URL =
+  process.env.NEXT_PUBLIC_TALONFLOW_URL ?? "http://localhost:8000";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Role = "user" | "assistant" | "system";
@@ -63,7 +63,7 @@ async function sendToPortfolioChat(message: string): Promise<{
   data: unknown;
   thread_id: string;
 }> {
-  const res = await fetch(`${DEERFLOW_URL}/api/portfolio/chat`, {
+  const res = await fetch(`${TALONFLOW_URL}/api/portfolio/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, stream: false }),
@@ -263,7 +263,7 @@ export default function ChatBubble() {
             "0 4px 20px rgba(99,102,241,0.5)";
         }}
       >
-        {open ? "✕" : "🦌"}
+        {open ? "✕" : "🦅"}
       </button>
 
       {/* ── Chat panel ─────────────────────────────────────── */}
@@ -300,7 +300,7 @@ export default function ChatBubble() {
               gap: 10,
             }}
           >
-            <span style={{ fontSize: 20 }}>🦌</span>
+            <span style={{ fontSize: 20 }}>🦅</span>
             <div>
               <div style={{ color: "#f1f5f9", fontWeight: 700, fontSize: 14 }}>
                 TALON Career Assistant
@@ -339,7 +339,7 @@ export default function ChatBubble() {
             ))}
             {loading && (
               <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>
-                🦌 Thinking
+                🦅 Thinking
                 <span className="talon-dots">...</span>
               </div>
             )}

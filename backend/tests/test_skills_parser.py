@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from deerflow.skills.parser import parse_skill_file
+from talonflow.skills.parser import parse_skill_file
 
 
 def _write_skill(tmp_path: Path, content: str) -> Path:

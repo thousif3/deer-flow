@@ -63,7 +63,7 @@ class ChannelService:
     @classmethod
     def from_app_config(cls) -> ChannelService:
         """Create a ChannelService from the application config."""
-        from deerflow.config.app_config import get_app_config
+        from talonflow.config.app_config import get_app_config
 
         config = get_app_config()
         channels_config = {}
@@ -130,7 +130,7 @@ class ChannelService:
             return False
 
         try:
-            from deerflow.reflection import resolve_class
+            from talonflow.reflection import resolve_class
 
             channel_cls = resolve_class(import_path, base_class=None)
         except Exception:

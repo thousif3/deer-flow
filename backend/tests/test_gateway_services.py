@@ -148,7 +148,7 @@ def test_build_run_config_explicit_agent_name_not_overwritten():
 def test_resolve_agent_factory_returns_make_lead_agent():
     """resolve_agent_factory always returns make_lead_agent regardless of assistant_id."""
     from app.gateway.services import resolve_agent_factory
-    from deerflow.agents.lead_agent.agent import make_lead_agent
+    from talonflow.agents.lead_agent.agent import make_lead_agent
 
     assert resolve_agent_factory(None) is make_lead_agent
     assert resolve_agent_factory("lead_agent") is make_lead_agent

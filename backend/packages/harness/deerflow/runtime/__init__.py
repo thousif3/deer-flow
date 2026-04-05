@@ -1,8 +1,8 @@
 """LangGraph-compatible runtime — runs, streaming, and lifecycle management.
 
-Re-exports the public API of :mod:`~deerflow.runtime.runs` and
-:mod:`~deerflow.runtime.stream_bridge` so that consumers can import
-directly from ``deerflow.runtime``.
+Re-exports the public API of :mod:`~talonflow.runtime.runs` and
+:mod:`~talonflow.runtime.stream_bridge` so that consumers can import
+directly from ``talonflow.runtime``.
 """
 
 from .runs import ConflictError, DisconnectMode, RunManager, RunRecord, RunStatus, UnsupportedStrategyError, run_agent

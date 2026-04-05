@@ -1,6 +1,6 @@
 """Built-in guardrail providers that ship with TalonFlow."""
 
-from deerflow.guardrails.provider import GuardrailDecision, GuardrailReason, GuardrailRequest
+from talonflow.guardrails.provider import GuardrailDecision, GuardrailReason, GuardrailRequest
 
 
 class AllowlistProvider:
