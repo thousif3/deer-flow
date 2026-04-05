@@ -47,14 +47,16 @@ def langchain_to_openai_message(message: Any) -> dict:
             openai_tool_calls = []
             for tc in tool_calls:
                 args = tc.get("args", {})
-                openai_tool_calls.append({
-                    "id": tc.get("id", ""),
-                    "type": "function",
-                    "function": {
-                        "name": tc.get("name", ""),
-                        "arguments": json.dumps(args) if not isinstance(args, str) else args,
-                    },
-                })
+                openai_tool_calls.append(
+                    {
+                        "id": tc.get("id", ""),
+                        "type": "function",
+                        "function": {
+                            "name": tc.get("name", ""),
+                            "arguments": json.dumps(args) if not isinstance(args, str) else args,
+                        },
+                    }
+                )
             # If no text content, set content to null per OpenAI spec
             result["content"] = content if (isinstance(content, list) and content) or (isinstance(content, str) and content) else None
             result["tool_calls"] = openai_tool_calls

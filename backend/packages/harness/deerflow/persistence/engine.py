@@ -20,6 +20,7 @@ def _json_serializer(obj: object) -> str:
     """JSON serializer with ensure_ascii=False for Chinese character support."""
     return json.dumps(obj, ensure_ascii=False)
 
+
 logger = logging.getLogger(__name__)
 
 _engine: AsyncEngine | None = None

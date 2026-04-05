@@ -41,7 +41,10 @@ class TestFeedbackRepository:
     async def test_create_negative_with_comment(self, tmp_path):
         repo = await _make_feedback_repo(tmp_path)
         record = await repo.create(
-            run_id="r1", thread_id="t1", rating=-1, comment="Response was inaccurate",
+            run_id="r1",
+            thread_id="t1",
+            rating=-1,
+            comment="Response was inaccurate",
         )
         assert record["rating"] == -1
         assert record["comment"] == "Response was inaccurate"

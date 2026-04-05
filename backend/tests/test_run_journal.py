@@ -947,8 +947,10 @@ class TestFullRunSequence:
         # 1. Human message (written by worker, using model_dump format)
         human_msg = HumanMessage(content="Search for quantum computing")
         await store.put(
-            thread_id="t1", run_id="r1",
-            event_type="human_message", category="message",
+            thread_id="t1",
+            run_id="r1",
+            event_type="human_message",
+            category="message",
             content=human_msg.model_dump(),
         )
         j.set_first_human_message("Search for quantum computing")

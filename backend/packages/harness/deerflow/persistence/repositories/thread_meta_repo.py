@@ -99,11 +99,7 @@ class ThreadMetaRepository:
     async def update_display_name(self, thread_id: str, display_name: str) -> None:
         """Update the display_name (title) for a thread."""
         async with self._sf() as session:
-            await session.execute(
-                update(ThreadMetaRow)
-                .where(ThreadMetaRow.thread_id == thread_id)
-                .values(display_name=display_name, updated_at=datetime.now(UTC))
-            )
+            await session.execute(update(ThreadMetaRow).where(ThreadMetaRow.thread_id == thread_id).values(display_name=display_name, updated_at=datetime.now(UTC)))
             await session.commit()
 
     async def update_status(self, thread_id: str, status: str) -> None:

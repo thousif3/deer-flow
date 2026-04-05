@@ -357,15 +357,17 @@ class RunJournal(BaseCallbackHandler):
     # -- Internal methods --
 
     def _put(self, *, event_type: str, category: str, content: str | dict = "", metadata: dict | None = None) -> None:
-        self._buffer.append({
-            "thread_id": self.thread_id,
-            "run_id": self.run_id,
-            "event_type": event_type,
-            "category": category,
-            "content": content,
-            "metadata": metadata or {},
-            "created_at": datetime.now(UTC).isoformat(),
-        })
+        self._buffer.append(
+            {
+                "thread_id": self.thread_id,
+                "run_id": self.run_id,
+                "event_type": event_type,
+                "category": category,
+                "content": content,
+                "metadata": metadata or {},
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+        )
         if len(self._buffer) >= self._flush_threshold:
             self._flush_sync()
 
@@ -395,7 +397,9 @@ class RunJournal(BaseCallbackHandler):
         except Exception:
             logger.warning(
                 "Failed to flush %d events for run %s — returning to buffer",
-                len(batch), self.run_id, exc_info=True,
+                len(batch),
+                self.run_id,
+                exc_info=True,
             )
             # Return failed events to buffer for retry on next flush
             self._buffer = batch + self._buffer

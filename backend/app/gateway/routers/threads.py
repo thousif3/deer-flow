@@ -616,7 +616,6 @@ async def get_thread_history(thread_id: str, body: ThreadHistoryRequest, request
         logger.warning("Failed to load messages from event store for thread %s", _sanitize_log_param(thread_id), exc_info=True)
         all_messages = []
 
-
     entries: list[HistoryEntry] = []
     is_latest_checkpoint = True
     try:
